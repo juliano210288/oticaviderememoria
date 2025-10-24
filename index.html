@@ -146,7 +146,7 @@
     height: 22px;
   }
 
-  #replay-btn {
+  #next-btn {
     margin-top: 15px;
     background-color: #ff5c33;
     color: white;
@@ -164,71 +164,82 @@
     color: #ffae9c;
   }
 
+  #level {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #ffae9c;
+  }
 </style>
 </head>
 <body>
   <h1>Memória das Armações 👓</h1>
+  <div id="level">Nível 1 • Desconto: 10%</div>
   <div class="game-board" id="game-board"></div>
 
   <div id="win-message">
-    <h2>🎉 Você ganhou uma armação grátis!* 🎉</h2>
-    <p>Tire um print e mostre na Ótica Videre.</p>
+    <h2 id="win-title"></h2>
+    <p id="win-text"></p>
+
     <a href="https://share.google/7Fau4Pa5Ss7CzM1No" target="_blank">
       <div id="link-icon">
         <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Localização">
       </div>
     </a>
 
-    <p id="note">🎁 Comprando o óculos completo, sua armação sai grátis!</p>
+    <p id="note">🎁 Comprando o óculos completo, sua armação sai com desconto!</p>
 
     <a id="whatsapp-btn" href="https://wa.me/551297633810" target="_blank">
       <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
       Falar com a Ótica
     </a>
 
-    <button id="replay-btn" onclick="location.reload()">Jogar Novamente</button>
+    <button id="next-btn" onclick="nextLevel()">Próximo Nível</button>
   </div>
 
 <script>
-  const images = [
-    'img1.png',
-    'img2.png',
-    'img3.png',
-    'img4.png',
-    'img5.png',
-    'img6.png'
-  ];
-
-  let cards = [...images, ...images];
+  const baseImages = ['img1.png','img2.png','img3.png','img4.png','img5.png','img6.png'];
+  let level = 1;
+  let maxLevel = 10;
   let flipped = [];
   let matched = [];
+
   const board = document.getElementById('game-board');
+  const levelDisplay = document.getElementById('level');
+  const winMessage = document.getElementById('win-message');
+  const winTitle = document.getElementById('win-title');
+  const winText = document.getElementById('win-text');
 
-  // embaralhar
-  cards.sort(() => 0.5 - Math.random());
+  function startGame() {
+    board.innerHTML = '';
+    flipped = [];
+    matched = [];
 
-  // criar cartas
-  cards.forEach((imgSrc, index) => {
-    const card = document.createElement('div');
-    card.classList.add('card');
-    card.innerHTML = `
-      <div class="front"></div>
-      <div class="back">
-        <img src="${imgSrc}" alt="Imagem ${index}">
-      </div>
-    `;
-    card.addEventListener('click', () => flipCard(card, imgSrc));
-    board.appendChild(card);
-  });
+    // Aumenta a dificuldade a cada nível (mais cartas)
+    let cardsCount = 6 + (level - 1) * 2;
+    let selectedImages = baseImages.slice(0, Math.min(cardsCount / 2, baseImages.length));
+    let cards = [...selectedImages, ...selectedImages];
+    cards.sort(() => 0.5 - Math.random());
+
+    cards.forEach((imgSrc, index) => {
+      const card = document.createElement('div');
+      card.classList.add('card');
+      card.innerHTML = `
+        <div class="front"></div>
+        <div class="back"><img src="${imgSrc}" alt="Imagem ${index}"></div>
+      `;
+      card.addEventListener('click', () => flipCard(card, imgSrc));
+      board.appendChild(card);
+    });
+
+    levelDisplay.textContent = `Nível ${level} • Desconto: ${level * 10}%`;
+  }
 
   function flipCard(card, imgSrc) {
     if (flipped.length < 2 && !card.classList.contains('flip')) {
       card.classList.add('flip');
       flipped.push({ card, imgSrc });
 
-      if (flipped.length === 2) {
-        checkMatch();
-      }
+      if (flipped.length === 2) checkMatch();
     }
   }
 
@@ -237,8 +248,8 @@
     if (first.imgSrc === second.imgSrc) {
       matched.push(first.imgSrc);
       flipped = [];
-      if (matched.length === images.length) {
-        document.getElementById('win-message').classList.add('show');
+      if (matched.length === first.card.parentNode.childElementCount / 2) {
+        setTimeout(showWin, 400);
       }
     } else {
       setTimeout(() => {
@@ -248,6 +259,30 @@
       }, 800);
     }
   }
+
+  function showWin() {
+    winTitle.textContent = level < maxLevel
+      ? `🎉 Parabéns! Você ganhou ${level * 10}% de desconto! 🎉`
+      : `🏆 Incrível! Você ganhou 100% de desconto! 🏆`;
+
+    winText.textContent = level < maxLevel
+      ? `Você completou o nível ${level}!`
+      : `Mostre este resultado na Ótica Videre e garanta sua armação grátis!*`;
+
+    winMessage.classList.add('show');
+  }
+
+  function nextLevel() {
+    if (level < maxLevel) {
+      level++;
+      winMessage.classList.remove('show');
+      startGame();
+    } else {
+      alert("Você já ganhou 100%! 🎉");
+    }
+  }
+
+  startGame();
 </script>
 </body>
 </html>
