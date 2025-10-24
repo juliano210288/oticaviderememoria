@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jogo da Memória - Óticas Videre</title>
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background-color: #2e004f;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding-top: 20px;
+  }
+
+  h1 {
+    color: #ff5c33;
+    margin-bottom: 15px;
+    font-size: 1.6rem;
+    text-align: center;
+  }
+
+  .game-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    grid-gap: 10px;
+    justify-content: center;
+    width: 90%;
+    max-width: 360px;
+  }
+
+  .card {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #ff5c33;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+  }
+
+  .card.flip {
+    transform: rotateY(180deg);
+  }
+
+  .card img {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+
+  .front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+  }
+
+  .front {
+    background-color: #ff5c33;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .back {
+    transform: rotateY(180deg);
+  }
+
+  #win-message {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(46, 0, 79, 0.97);
+    color: white;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-size: 1.4rem;
+    z-index: 10;
+    padding: 20px;
+  }
+
+  #win-message.show {
+    display: flex;
+  }
+
+  #win-message h2 {
+    font-size: 2rem;
+    color: #ff5c33;
+    margin-bottom: 10px;
+  }
+
+  #win-message p {
+    font-size: 1rem;
+    margin: 8px 0;
+  }
+
+  #link-icon {
+    margin-top: 15px;
+    background-color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #link-icon img {
+    width: 35px;
+  }
+
+  #whatsapp-btn {
+    margin-top: 20px;
+    background-color: #25d366;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+
+  #whatsapp-btn img {
+    width: 22px;
+    height: 22px;
+  }
+
+  #replay-btn {
+    margin-top: 15px;
+    background-color: #ff5c33;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  #note {
+    font-size: 0.9rem;
+    margin-top: 10px;
+    color: #ffae9c;
+  }
+
+</style>
+</head>
+<body>
+  <h1>Memória das Armações 👓</h1>
+  <div class="game-board" id="game-board"></div>
+
+  <div id="win-message">
+    <h2>🎉 Você ganhou uma armação grátis!* 🎉</h2>
+    <p>Tire um print e mostre na Ótica Videre.</p>
+    <a href="https://share.google/7Fau4Pa5Ss7CzM1No" target="_blank">
+      <div id="link-icon">
+        <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Localização">
+      </div>
+    </a>
+
+    <p id="note">🎁 Comprando o óculos completo, sua armação sai grátis!</p>
+
+    <a id="whatsapp-btn" href="https://wa.me/551297633810" target="_blank">
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
+      Falar com a Ótica
+    </a>
+
+    <button id="replay-btn" onclick="location.reload()">Jogar Novamente</button>
+  </div>
+
+<script>
+  const images = [
+    'img1.png',
+    'img2.png',
+    'img3.png',
+    'img4.png',
+    'img5.png',
+    'img6.png'
+  ];
+
+  let cards = [...images, ...images];
+  let flipped = [];
+  let matched = [];
+  const board = document.getElementById('game-board');
+
+  // embaralhar
+  cards.sort(() => 0.5 - Math.random());
+
+  // criar cartas
+  cards.forEach((imgSrc, index) => {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    card.innerHTML = `
+      <div class="front"></div>
+      <div class="back">
+        <img src="${imgSrc}" alt="Imagem ${index}">
+      </div>
+    `;
+    card.addEventListener('click', () => flipCard(card, imgSrc));
+    board.appendChild(card);
+  });
+
+  function flipCard(card, imgSrc) {
+    if (flipped.length < 2 && !card.classList.contains('flip')) {
+      card.classList.add('flip');
+      flipped.push({ card, imgSrc });
+
+      if (flipped.length === 2) {
+        checkMatch();
+      }
+    }
+  }
+
+  function checkMatch() {
+    const [first, second] = flipped;
+    if (first.imgSrc === second.imgSrc) {
+      matched.push(first.imgSrc);
+      flipped = [];
+      if (matched.length === images.length) {
+        document.getElementById('win-message').classList.add('show');
+      }
+    } else {
+      setTimeout(() => {
+        first.card.classList.remove('flip');
+        second.card.classList.remove('flip');
+        flipped = [];
+      }, 800);
+    }
+  }
+</script>
+</body>
+</html>
