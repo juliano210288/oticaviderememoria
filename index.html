@@ -1,428 +1,91 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Catch the Fruits — Corrigido</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catch the Fruits 🍎</title>
 <style>
-  :root{
-    --bg:#0f1724;
-    --panel:#0b1220;
-    --accent:#ffd166;
-    --text:#e6eef6;
-    --muted:#98a8c7;
+  body {
+    background-color: #0b1424;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    text-align: center;
   }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    background:linear-gradient(180deg,var(--bg),#071027 120%);
-    color:var(--text);
-    font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
+  canvas {
+    background: linear-gradient(180deg, #021024, #002b55);
+    display: block;
+    margin: 20px auto;
+    border-radius: 10px;
   }
-
-  .game-wrap{
-    width:100%;
-    max-width:900px;
-    aspect-ratio: 4/3;
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
-    border-radius:14px;
-    box-shadow: 0 10px 30px rgba(2,6,23,0.7);
-    display:grid;
-    grid-template-columns: 1fr 260px;
-    overflow:hidden;
-    position:relative;
-  }
-
-  .play-area{position:relative;padding:12px;}
-  canvas{
-    width:100%;
-    height:100%;
-    display:block;
-    background: linear-gradient(180deg,#082033 0%, #041022 100%);
-    border-radius:10px;
-    box-shadow: inset 0 2px 10px rgba(255,255,255,0.02);
-  }
-
-  .panel{
-    padding:18px;
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    align-items:stretch;
-  }
-  h1{margin:0;font-size:18px}
-  .score-big{
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-    padding:12px;border-radius:8px;
-    text-align:center;
-    font-weight:700;
-    color:var(--accent);
-    font-size:26px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.35);
-  }
-  .stat{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,0.01);color:var(--muted);font-size:14px;}
-  .controls{display:flex;gap:8px;flex-wrap:wrap}
-  .btn{flex:1;padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700;background:linear-gradient(180deg,#12304b,#0b2433);color:var(--text);box-shadow: 0 6px 12px rgba(2,6,23,0.6);}
-  .btn.secondary{background:linear-gradient(180deg,#1b2733,#0f1a24);}
-
-  .hint{font-size:12px;color:var(--muted);margin-top:6px}
-  .touch-controls{display:none;gap:12px;padding-top:6px;}
-  .touch-btn{flex:1;padding:12px;border-radius:10px;border:0;font-weight:800;font-size:18px;background:linear-gradient(180deg,#233a4a,#12232d);color:var(--text);box-shadow:0 6px 10px rgba(0,0,0,0.5);}
-
-  footer{margin-top:auto;font-size:12px;color:var(--muted);text-align:center}
-  @media (max-width:900px){ .game-wrap{grid-template-columns:1fr} .panel{order:2;width:100%;} .play-area{order:1;padding:8px} .touch-controls{display:flex} }
-  /* small debug area */
-  #debug{font-size:11px;color:var(--muted);margin-top:8px}
+  h1 { color: #ffd54f; }
 </style>
 </head>
 <body>
-  <div class="game-wrap" role="application" aria-label="Catch the Fruits game">
-    <div class="play-area">
-      <canvas id="gameCanvas"></canvas>
-    </div>
+  <h1>Catch the Fruits 🍌</h1>
+  <p>Toque ou use as setas para mover a cesta!</p>
+  <canvas id="gameCanvas" width="320" height="480"></canvas>
+  <p id="score">Pontuação: 0</p>
 
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h1>Catch the Fruits</h1>
-        <div style="font-size:13px;color:var(--muted)">Tempo: <span id="time">60</span>s</div>
-      </div>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-      <div class="score-big">Score: <span id="score">0</span></div>
-      <div class="stat"><div>High score</div><div id="highscore">0</div></div>
-      <div class="stat"><div>Nível</div><div id="level">1</div></div>
-      <div class="stat"><div>Frutas pegas</div><div id="caught">0</div></div>
+    let basketX = canvas.width / 2 - 25;
+    let fruits = [];
+    let score = 0;
 
-      <div style="margin-top:6px">
-        <div class="controls">
-          <button class="btn" id="startBtn">Começar</button>
-          <button class="btn secondary" id="pauseBtn">Pausar</button>
-        </div>
-        <div class="hint">Use ← → ou A D para mover. No celular use os botões abaixo.</div>
-      </div>
+    document.addEventListener('touchmove', e => {
+      const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+      basketX = Math.min(Math.max(touchX - 25, 0), canvas.width - 50);
+    });
 
-      <div class="touch-controls" id="touchControls">
-        <button class="touch-btn" id="leftTouch">◀</button>
-        <button class="touch-btn" id="downTouch">Parar</button>
-        <button class="touch-btn" id="rightTouch">▶</button>
-      </div>
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') basketX -= 20;
+      if (e.key === 'ArrowRight') basketX += 20;
+      basketX = Math.min(Math.max(basketX, 0), canvas.width - 50);
+    });
 
-      <div id="debug">Console: abra o DevTools (F12) se precisar.</div>
-      <footer>Desenvolvido por ChatGPT — Salve o arquivo e abra no navegador.</footer>
-    </div>
-  </div>
+    function newFruit() {
+      fruits.push({
+        x: Math.random() * (canvas.width - 20),
+        y: 0,
+        speed: 2 + Math.random() * 3,
+        color: `hsl(${Math.random()*360}, 80%, 60%)`
+      });
+    }
 
-<script>
-/* -------------------------
-   Variáveis e elementos UI
-   -------------------------*/
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const UI = {
-  score: document.getElementById('score'),
-  high: document.getElementById('highscore'),
-  lvl: document.getElementById('level'),
-  caught: document.getElementById('caught'),
-  time: document.getElementById('time'),
-  startBtn: document.getElementById('startBtn'),
-  pauseBtn: document.getElementById('pauseBtn'),
-};
-let logicalW = 800, logicalH = 600; // units in CSS pixels
-let dpr = Math.max(1, window.devicePixelRatio || 1);
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // cesta
+      ctx.fillStyle = '#ffca28';
+      ctx.fillRect(basketX, canvas.height - 40, 50, 20);
 
-let score = 0, highscore = Number(localStorage.getItem('ctf_highscore') || 0), caught = 0, level = 1;
-let timeLeft = 60, running = false, paused = false;
-let lastTime = 0, spawnTimer = 0, spawnInterval = 1000, gravity = 0.12;
-let items = [], player;
-UI.high.textContent = highscore;
+      // frutas
+      for (let i = 0; i < fruits.length; i++) {
+        const f = fruits[i];
+        f.y += f.speed;
+        ctx.beginPath();
+        ctx.arc(f.x + 10, f.y + 10, 10, 0, Math.PI * 2);
+        ctx.fillStyle = f.color;
+        ctx.fill();
 
-/* Fruits */
-const FRUITS = ['🍎','🍌','🍇','🍊','🍐','🍓','🍍','🥭'];
-
-/* -------------------------
-   Canvas resize / scale
-   -------------------------*/
-function resizeCanvas(){
-  // logical size = bounding client rect
-  const rect = canvas.getBoundingClientRect();
-  logicalW = rect.width || 800;
-  logicalH = rect.height || 600;
-  dpr = Math.max(1, window.devicePixelRatio || 1);
-
-  canvas.width = Math.round(logicalW * dpr);
-  canvas.height = Math.round(logicalH * dpr);
-
-  // Reset transform and scale so drawing coordinates use CSS pixels
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener('orientationchange', resizeCanvas);
-resizeCanvas();
-
-/* -------------------------
-   Player & helpers
-   -------------------------*/
-function createPlayer(){
-  return {
-    x: logicalW/2 - 70,
-    y: logicalH - 80,
-    w: 140,
-    h: 40,
-    speed: 8,
-  };
-}
-function rand(min,max){ return Math.random()*(max-min)+min; }
-function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
-
-/* -------------------------
-   Items
-   -------------------------*/
-function spawnItem(){
-  const text = FRUITS[Math.floor(Math.random()*FRUITS.length)];
-  const size = rand(28,48);
-  items.push({
-    x: rand(20, logicalW - 20 - size),
-    y: -size,
-    vy: rand(0.6, 1.2) + level*0.15,
-    size,
-    text,
-    angle: rand(0,Math.PI*2),
-    va: rand(-0.03,0.03),
-  });
-}
-
-/* -------------------------
-   Input
-   -------------------------*/
-const keys = {};
-window.addEventListener('keydown', e=>{
-  keys[e.key.toLowerCase()] = true;
-  if (['arrowleft','arrowright','a','d'].includes(e.key.toLowerCase())) e.preventDefault();
-});
-window.addEventListener('keyup', e=>{ keys[e.key.toLowerCase()] = false; });
-
-document.getElementById('leftTouch').addEventListener('touchstart', e=>{ keys['a']=true; e.preventDefault(); });
-document.getElementById('leftTouch').addEventListener('touchend', e=>{ keys['a']=false; e.preventDefault(); });
-document.getElementById('rightTouch').addEventListener('touchstart', e=>{ keys['d']=true; e.preventDefault(); });
-document.getElementById('rightTouch').addEventListener('touchend', e=>{ keys['d']=false; e.preventDefault(); });
-document.getElementById('downTouch').addEventListener('click', ()=>{ keys['a']=keys['d']=false; });
-
-UI.startBtn.addEventListener('click', ()=>{ if (!running) startGame(); else resetGame(); });
-UI.pauseBtn.addEventListener('click', ()=>{ togglePause(); });
-
-/* -------------------------
-   Game state functions
-   -------------------------*/
-function startGame(){
-  console.log('Iniciando jogo');
-  score = 0; caught = 0; level = 1; timeLeft = 60;
-  items = [];
-  spawnInterval = 900;
-  gravity = 0.12;
-  player = createPlayer();
-  running = true; paused = false;
-  lastTime = performance.now();
-  UI.time.textContent = Math.ceil(timeLeft);
-  UI.score.textContent = score;
-  UI.lvl.textContent = level;
-  UI.caught.textContent = caught;
-  UI.startBtn.textContent = 'Reiniciar';
-  UI.pauseBtn.textContent = 'Pausar';
-  requestAnimationFrame(loop);
-}
-
-function resetGame(){
-  console.log('Resetando jogo');
-  running = false;
-  paused = false;
-  items = [];
-  UI.startBtn.textContent = 'Começar';
-  // limpa canvas
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-
-function togglePause(){
-  if (!running) return;
-  paused = !paused;
-  UI.pauseBtn.textContent = paused ? 'Continuar' : 'Pausar';
-  if (!paused){
-    lastTime = performance.now();
-    requestAnimationFrame(loop);
-  }
-}
-
-function endGame(){
-  running = false; paused = false;
-  if (score > highscore){
-    highscore = score;
-    localStorage.setItem('ctf_highscore', highscore);
-    UI.high.textContent = highscore;
-  }
-  UI.startBtn.textContent = 'Começar';
-  UI.pauseBtn.textContent = 'Pausar';
-  draw(); // frame final
-  setTimeout(()=> alert('Fim de jogo! Pontuação: ' + score + '\\nHigh score: ' + highscore), 40);
-}
-
-/* -------------------------
-   Update & draw
-   -------------------------*/
-function update(dt){
-  // movement
-  const left = keys['arrowleft'] || keys['a'];
-  const right = keys['arrowright'] || keys['d'];
-  if (left && !right) player.x -= player.speed;
-  else if (right && !left) player.x += player.speed;
-  player.x = clamp(player.x, 10, logicalW - player.w - 10);
-
-  // spawn
-  spawnTimer += dt;
-  if (spawnTimer > spawnInterval){
-    spawnTimer = 0;
-    const count = 1 + Math.floor(level/3);
-    for(let i=0;i<count;i++) spawnItem();
-  }
-
-  // items physics
-  for (let i = items.length-1; i>=0; i--){
-    const it = items[i];
-    it.y += it.vy * (dt/16) * (1 + level*0.06);
-    it.vy += gravity * (dt/1000) * 60;
-    it.angle += it.va;
-    // collision
-    if (it.y + it.size > player.y && it.y < player.y + player.h &&
-        it.x + it.size > player.x && it.x < player.x + player.w){
-      score += Math.floor(8 + it.size/6 + level*2);
-      caught++;
-      items.splice(i,1);
-      if (caught > 0 && caught % 10 === 0){
-        level++;
-        spawnInterval = Math.max(350, spawnInterval - 70);
+        // colisão
+        if (f.y > canvas.height - 60 && f.x > basketX - 10 && f.x < basketX + 50) {
+          score++;
+          fruits.splice(i, 1);
+          i--;
+          document.getElementById('score').textContent = "Pontuação: " + score;
+        } else if (f.y > canvas.height) {
+          fruits.splice(i, 1);
+          i--;
+        }
       }
-      continue;
+
+      if (Math.random() < 0.03) newFruit();
+      requestAnimationFrame(update);
     }
-    // missed
-    if (it.y > logicalH + 100){
-      score = Math.max(0, score - 5);
-      items.splice(i,1);
-    }
-  }
 
-  // timer
-  timeLeft -= dt/1000;
-  if (timeLeft <= 0) endGame();
-
-  // UI
-  UI.score.textContent = score;
-  UI.lvl.textContent = level;
-  UI.caught.textContent = caught;
-  UI.time.textContent = Math.max(0, Math.ceil(timeLeft));
-}
-
-function draw(){
-  // clear (using CSS pixel coords)
-  ctx.clearRect(0,0,logicalW,logicalH);
-
-  // background
-  const g = ctx.createLinearGradient(0,0,0,logicalH);
-  g.addColorStop(0,'#06233a'); g.addColorStop(1,'#021223');
-  ctx.fillStyle = g;
-  ctx.fillRect(0,0,logicalW,logicalH);
-
-  // items
-  items.forEach(it=>{
-    ctx.save();
-    ctx.translate(it.x + it.size/2, it.y + it.size/2);
-    ctx.rotate(it.angle);
-    ctx.font = `${Math.floor(it.size)}px serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    ctx.fillText(it.text, 4, 4);
-    ctx.fillStyle = '#fff';
-    ctx.fillText(it.text, 0, 0);
-    ctx.restore();
-  });
-
-  // basket shadow
-  player.y = logicalH - 80;
-  ctx.beginPath();
-  ctx.ellipse(player.x + player.w/2, player.y + player.h + 10, player.w/2, 10, 0, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(0,0,0,0.2)';
-  ctx.fill();
-
-  // basket
-  ctx.save();
-  ctx.fillStyle = '#f6a623';
-  roundRect(ctx, player.x, player.y, player.w, player.h, 10);
-  ctx.fillStyle = '#583a16';
-  ctx.fill();
-  ctx.restore();
-
-  // rim
-  ctx.fillStyle = '#f6a623';
-  ctx.fillRect(player.x+8, player.y-8, player.w-16, 8);
-
-  // HUD rectangle
-  ctx.fillStyle = 'rgba(0,0,0,0.2)';
-  ctx.fillRect(12,12,220,56);
-  ctx.fillStyle = '#fff';
-  ctx.font = '14px Inter, sans-serif';
-  ctx.fillText('Score: ' + score, 20, 32);
-  ctx.fillText('Level: ' + level + '  Caught: ' + caught, 20, 52);
-}
-
-function roundRect(ctx,x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);
-  ctx.arcTo(x+w,y,x+w,y+h,r);
-  ctx.arcTo(x+w,y+h,x,y+h,r);
-  ctx.arcTo(x,y+h,x,y,r);
-  ctx.arcTo(x,y,x+w,y,r);
-  ctx.closePath();
-  ctx.fill();
-}
-
-/* -------------------------
-   Main loop
-   -------------------------*/
-function loop(now){
-  if (!running) return;
-  if (paused) return;
-  if (!lastTime) lastTime = now;
-  const dt = Math.min(60, now - lastTime);
-  lastTime = now;
-  // ensure canvas scale matches current size
-  resizeCanvas();
-  update(dt);
-  draw();
-  requestAnimationFrame(loop);
-}
-
-/* initialize */
-player = createPlayer();
-
-/* Optional: allow drag to move basket */
-let mouseDown = false;
-canvas.addEventListener('mousedown', e=>{ mouseDown = true; });
-window.addEventListener('mouseup', e=>{ mouseDown = false; });
-canvas.addEventListener('mousemove', e=>{
-  if (!mouseDown) return;
-  const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  player.x = clamp(mx - player.w/2, 10, logicalW - player.w - 10);
-});
-
-/* small safety: log uncaught errors to console */
-window.addEventListener('error', e=>{
-  console.error('Erro capturado:', e.message, e.error);
-  alert('Ocorreu um erro no jogo. Abra o DevTools (F12) e veja o console para detalhes.');
-});
-</script>
+    update();
+  </script>
 </body>
 </html>
