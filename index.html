@@ -1,288 +1,496 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Jogo da Memória - Óticas Videre</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Catch the Fruits — Jogo HTML</title>
 <style>
-  body {
-    font-family: "Poppins", sans-serif;
-    background-color: #2e004f;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    margin: 0;
-    padding-top: 20px;
+  :root{
+    --bg:#0f1724;
+    --panel:#0b1220;
+    --accent:#ffd166;
+    --text:#e6eef6;
+    --muted:#98a8c7;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,var(--bg),#071027 120%);
+    color:var(--text);
+    font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
   }
 
-  h1 {
-    color: #ff5c33;
-    margin-bottom: 15px;
-    font-size: 1.6rem;
-    text-align: center;
+  .game-wrap{
+    width:100%;
+    max-width:900px;
+    aspect-ratio: 4/3;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+    border-radius:14px;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.7);
+    display:grid;
+    grid-template-columns: 1fr 260px;
+    overflow:hidden;
+    position:relative;
   }
 
-  .game-board {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-    grid-gap: 10px;
-    justify-content: center;
-    width: 90%;
-    max-width: 360px;
+  /* Canvas area */
+  .play-area{
+    position:relative;
+    background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,0.02), transparent 5%),
+      linear-gradient(180deg, rgba(255,255,255,0.01), transparent 30%);
+    padding:12px;
+  }
+  canvas{
+    width:100%;
+    height:100%;
+    display:block;
+    background: linear-gradient(180deg,#082033 0%, #041022 100%);
+    border-radius:10px;
+    box-shadow: inset 0 2px 10px rgba(255,255,255,0.02);
   }
 
-  .card {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    background-color: #ff5c33;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.5s;
+  /* Side panel */
+  .panel{
+    padding:18px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    align-items:stretch;
+  }
+  h1{margin:0;font-size:18px}
+  .score-big{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    padding:12px;border-radius:8px;
+    text-align:center;
+    font-weight:700;
+    color:var(--accent);
+    font-size:26px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.35);
+  }
+  .stat{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 10px;
+    border-radius:8px;
+    background:rgba(255,255,255,0.01);
+    color:var(--muted);
+    font-size:14px;
+  }
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{
+    flex:1;
+    padding:10px 12px;
+    border-radius:10px;
+    border:0;
+    cursor:pointer;
+    font-weight:700;
+    background:linear-gradient(180deg,#12304b,#0b2433);
+    color:var(--text);
+    box-shadow: 0 6px 12px rgba(2,6,23,0.6);
+  }
+  .btn.secondary{
+    background:linear-gradient(180deg,#1b2733,#0f1a24);
   }
 
-  .card.flip {
-    transform: rotateY(180deg);
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+
+  /* Mobile control overlay */
+  .touch-controls{
+    display:none;
+    gap:12px;
+    padding-top:6px;
+  }
+  .touch-btn{
+    flex:1;padding:12px;border-radius:10px;border:0;font-weight:800;
+    font-size:18px;background:linear-gradient(180deg,#233a4a,#12232d);color:var(--text);
+    box-shadow:0 6px 10px rgba(0,0,0,0.5);
   }
 
-  .card img {
-    width: 100%;
-    height: 100%;
-    border-radius: 10px;
-    object-fit: cover;
-  }
+  footer{margin-top:auto;font-size:12px;color:var(--muted);text-align:center}
 
-  .front, .back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 10px;
-  }
-
-  .front {
-    background-color: #ff5c33;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .back {
-    transform: rotateY(180deg);
-  }
-
-  #win-message {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(46, 0, 79, 0.97);
-    color: white;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    font-size: 1.4rem;
-    z-index: 10;
-    padding: 20px;
-  }
-
-  #win-message.show {
-    display: flex;
-  }
-
-  #win-message h2 {
-    font-size: 2rem;
-    color: #ff5c33;
-    margin-bottom: 10px;
-  }
-
-  #win-message p {
-    font-size: 1rem;
-    margin: 8px 0;
-  }
-
-  #link-icon {
-    margin-top: 15px;
-    background-color: white;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  #link-icon img {
-    width: 35px;
-  }
-
-  #whatsapp-btn {
-    margin-top: 20px;
-    background-color: #25d366;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 18px;
-    font-size: 1rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-  }
-
-  #whatsapp-btn img {
-    width: 22px;
-    height: 22px;
-  }
-
-  #next-btn {
-    margin-top: 15px;
-    background-color: #ff5c33;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  #note {
-    font-size: 0.9rem;
-    margin-top: 10px;
-    color: #ffae9c;
-  }
-
-  #level {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    color: #ffae9c;
+  /* Responsive */
+  @media (max-width:900px){
+    .game-wrap{grid-template-columns:1fr}
+    .panel{order:2;width:100%;}
+    .play-area{order:1;padding:8px}
+    .touch-controls{display:flex}
   }
 </style>
 </head>
 <body>
-  <h1>Memória das Armações 👓</h1>
-  <div id="level">Nível 1 • Desconto: 10%</div>
-  <div class="game-board" id="game-board"></div>
+  <div class="game-wrap" role="application" aria-label="Catch the Fruits game">
+    <div class="play-area">
+      <canvas id="gameCanvas"></canvas>
+    </div>
 
-  <div id="win-message">
-    <h2 id="win-title"></h2>
-    <p id="win-text"></p>
-
-    <a href="https://share.google/7Fau4Pa5Ss7CzM1No" target="_blank">
-      <div id="link-icon">
-        <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Localização">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h1>Catch the Fruits</h1>
+        <div style="font-size:13px;color:var(--muted)">Tempo: <span id="time">60</span>s</div>
       </div>
-    </a>
 
-    <p id="note">🎁 Comprando o óculos completo, sua armação sai com desconto!</p>
+      <div class="score-big">Score: <span id="score">0</span></div>
+      <div class="stat"><div>High score</div><div id="highscore">0</div></div>
+      <div class="stat"><div>Nível</div><div id="level">1</div></div>
+      <div class="stat"><div>Frutas pegas</div><div id="caught">0</div></div>
 
-    <a id="whatsapp-btn" href="https://wa.me/551297633810" target="_blank">
-      <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp">
-      Falar com a Ótica
-    </a>
+      <div style="margin-top:6px">
+        <div class="controls">
+          <button class="btn" id="startBtn">Começar</button>
+          <button class="btn secondary" id="pauseBtn">Pausar</button>
+        </div>
+        <div class="hint">Use ← → ou A D para mover. No celular use os botões abaixo.</div>
+      </div>
 
-    <button id="next-btn" onclick="nextLevel()">Próximo Nível</button>
+      <div class="touch-controls" id="touchControls">
+        <button class="touch-btn" id="leftTouch">◀</button>
+        <button class="touch-btn" id="downTouch">Parar</button>
+        <button class="touch-btn" id="rightTouch">▶</button>
+      </div>
+
+      <footer>
+        Desenvolvido por ChatGPT — Salve o arquivo e abra no navegador.
+      </footer>
+    </div>
   </div>
 
 <script>
-  const baseImages = ['img1.png','img2.png','img3.png','img4.png','img5.png','img6.png'];
-  let level = 1;
-  let maxLevel = 10;
-  let flipped = [];
-  let matched = [];
+/* --- Configurações e variáveis --- */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d', { alpha: false });
 
-  const board = document.getElementById('game-board');
-  const levelDisplay = document.getElementById('level');
-  const winMessage = document.getElementById('win-message');
-  const winTitle = document.getElementById('win-title');
-  const winText = document.getElementById('win-text');
+let W = 800, H = 600; // logical size (will scale)
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * devicePixelRatio;
+  canvas.height = rect.height * devicePixelRatio;
+  W = canvas.width;
+  H = canvas.height;
+  ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
-  function startGame() {
-    board.innerHTML = '';
-    flipped = [];
-    matched = [];
+/* Game state */
+let score = 0;
+let highscore = Number(localStorage.getItem('ctf_highscore') || 0);
+let caught = 0;
+let level = 1;
+let timeLeft = 60; // seconds
+let running = false;
+let paused = false;
+let lastTime = 0;
+let spawnTimer = 0;
+let spawnInterval = 1000; // ms
+let gravity = 0.12; // falling speed increment
+let items = [];
+let player;
+const UI = {
+  score: document.getElementById('score'),
+  high: document.getElementById('highscore'),
+  lvl: document.getElementById('level'),
+  caught: document.getElementById('caught'),
+  time: document.getElementById('time'),
+  startBtn: document.getElementById('startBtn'),
+  pauseBtn: document.getElementById('pauseBtn'),
+};
+UI.high.textContent = highscore;
 
-    // Aumenta a dificuldade a cada nível (mais cartas)
-    let cardsCount = 6 + (level - 1) * 2;
-    let selectedImages = baseImages.slice(0, Math.min(cardsCount / 2, baseImages.length));
-    let cards = [...selectedImages, ...selectedImages];
-    cards.sort(() => 0.5 - Math.random());
+/* Assets: use emoji for fruits for simplicity */
+const FRUITS = ['🍎','🍌','🍇','🍊','🍐','🍓','🍍','🥭'];
+const BADIES = ['🪨','🍋']; // lemon is small penalty (optional), rock is bad
 
-    cards.forEach((imgSrc, index) => {
-      const card = document.createElement('div');
-      card.classList.add('card');
-      card.innerHTML = `
-        <div class="front"></div>
-        <div class="back"><img src="${imgSrc}" alt="Imagem ${index}"></div>
-      `;
-      card.addEventListener('click', () => flipCard(card, imgSrc));
-      board.appendChild(card);
-    });
+/* Player object */
+function createPlayer(){
+  return {
+    x: 50,
+    y: 0,
+    w: 140,
+    h: 40,
+    speed: 8,
+    vx: 0,
+    color: '#c9f1ff',
+  };
+}
 
-    levelDisplay.textContent = `Nível ${level} • Desconto: ${level * 10}%`;
+/* Helpers */
+function rand(min,max){ return Math.random()*(max-min)+min; }
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+
+/* Item generator */
+function spawnItem(){
+  const isBad = Math.random() < 0.08; // small chance of a rock
+  const text = isBad ? '🪨' : FRUITS[Math.floor(Math.random()*FRUITS.length)];
+  const size = rand(28,50);
+  items.push({
+    x: rand(20, W/ (window.devicePixelRatio||1) - 20 - size),
+    y: -size,
+    vy: rand(0.6, 1.2) + level*0.15,
+    size,
+    text,
+    bad: isBad,
+    angle: rand(0,Math.PI*2),
+    va: rand(-0.03,0.03),
+  });
+}
+
+/* Input */
+const keys = {};
+window.addEventListener('keydown', e=>{
+  keys[e.key.toLowerCase()] = true;
+  if (['arrowleft','arrowright','a','d'].includes(e.key.toLowerCase())) e.preventDefault();
+  if (e.key === ' '){ // space restarts if not running
+    if (!running) startGame();
+    e.preventDefault();
+  }
+});
+window.addEventListener('keyup', e=>{ keys[e.key.toLowerCase()] = false; });
+
+/* Touch buttons */
+document.getElementById('leftTouch').addEventListener('touchstart', e=>{ keys['a']=true; e.preventDefault(); });
+document.getElementById('leftTouch').addEventListener('touchend', e=>{ keys['a']=false; e.preventDefault(); });
+document.getElementById('rightTouch').addEventListener('touchstart', e=>{ keys['d']=true; e.preventDefault(); });
+document.getElementById('rightTouch').addEventListener('touchend', e=>{ keys['d']=false; e.preventDefault(); });
+document.getElementById('downTouch').addEventListener('click', ()=>{ keys['a']=keys['d']=false; });
+
+/* Buttons */
+UI.startBtn.addEventListener('click', ()=>{ if (!running) startGame(); else resetGame(); });
+UI.pauseBtn.addEventListener('click', ()=>{ togglePause(); });
+
+/* Game functions */
+function startGame(){
+  // reset
+  score = 0; caught = 0; level = 1; timeLeft = 60;
+  items = [];
+  player = createPlayer();
+  running = true; paused = false;
+  spawnInterval = 1000;
+  gravity = 0.12;
+  lastTime = performance.now();
+  UI.time.textContent = Math.ceil(timeLeft);
+  UI.score.textContent = score;
+  UI.lvl.textContent = level;
+  UI.caught.textContent = caught;
+  UI.startBtn.textContent = 'Reiniciar';
+  UI.pauseBtn.textContent = 'Pausar';
+  requestAnimationFrame(loop);
+}
+
+function resetGame(){
+  running = false;
+  paused = false;
+  items = [];
+  UI.startBtn.textContent = 'Começar';
+  // Clear canvas visually
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+function togglePause(){
+  if (!running) return;
+  paused = !paused;
+  UI.pauseBtn.textContent = paused ? 'Continuar' : 'Pausar';
+  if (!paused){
+    lastTime = performance.now();
+    requestAnimationFrame(loop);
+  }
+}
+
+function update(dt){
+  // Controls: left/right (A D or arrows)
+  const moveLeft = keys['arrowleft'] || keys['a'];
+  const moveRight = keys['arrowright'] || keys['d'];
+  if (moveLeft && !moveRight) player.x -= player.speed;
+  else if (moveRight && !moveLeft) player.x += player.speed;
+  // clamp
+  player.x = clamp(player.x, 10, (W/devicePixelRatio) - player.w - 10);
+
+  // spawn logic
+  spawnTimer += dt;
+  if (spawnTimer > spawnInterval){
+    spawnTimer = 0;
+    // spawn a few items depending on level
+    const count = 1 + Math.floor(level/3);
+    for(let i=0;i<count;i++) spawnItem();
   }
 
-  function flipCard(card, imgSrc) {
-    if (flipped.length < 2 && !card.classList.contains('flip')) {
-      card.classList.add('flip');
-      flipped.push({ card, imgSrc });
-
-      if (flipped.length === 2) checkMatch();
-    }
-  }
-
-  function checkMatch() {
-    const [first, second] = flipped;
-    if (first.imgSrc === second.imgSrc) {
-      matched.push(first.imgSrc);
-      flipped = [];
-      if (matched.length === first.card.parentNode.childElementCount / 2) {
-        setTimeout(showWin, 400);
+  // update items
+  for (let i = items.length-1; i>=0; i--){
+    const it = items[i];
+    it.y += it.vy * (dt/16) * (1 + level*0.08);
+    it.vy += gravity * (dt/16) * 0.02;
+    it.angle += it.va;
+    // collision with player (simple AABB)
+    if (it.y + it.size > player.y && it.y < player.y + player.h &&
+        it.x + it.size > player.x && it.x < player.x + player.w){
+      // catch
+      if (it.bad){
+        score = Math.max(0, score - 10);
+        // small penalty and screen shake maybe
+      } else {
+        score += Math.floor(10 + it.size/5 + level*2);
+        caught++;
       }
-    } else {
-      setTimeout(() => {
-        first.card.classList.remove('flip');
-        second.card.classList.remove('flip');
-        flipped = [];
-      }, 800);
+      items.splice(i,1);
+      // level up for every 10 caught
+      if (caught > 0 && caught % 10 === 0) {
+        level++;
+        // increase difficulty
+        spawnInterval = Math.max(350, spawnInterval - 80);
+      }
+      continue;
+    }
+    // remove if falls past bottom
+    if (it.y > (H/devicePixelRatio) + 100) {
+      // small penalty when miss a good fruit
+      if (!it.bad) score = Math.max(0, score - 5);
+      items.splice(i,1);
     }
   }
 
-  function showWin() {
-    winTitle.textContent = level < maxLevel
-      ? `🎉 Parabéns! Você ganhou ${level * 10}% de desconto! 🎉`
-      : `🏆 Incrível! Você ganhou 100% de desconto! 🏆`;
-
-    winText.textContent = level < maxLevel
-      ? `Você completou o nível ${level}!`
-      : `Mostre este resultado na Ótica Videre e garanta sua armação grátis!*`;
-
-    winMessage.classList.add('show');
+  // update timer
+  timeLeft -= dt/1000;
+  if (timeLeft <= 0){
+    endGame();
   }
 
-  function nextLevel() {
-    if (level < maxLevel) {
-      level++;
-      winMessage.classList.remove('show');
-      startGame();
-    } else {
-      alert("Você já ganhou 100%! 🎉");
-    }
-  }
+  // update UI
+  UI.score.textContent = score;
+  UI.lvl.textContent = level;
+  UI.caught.textContent = caught;
+  UI.time.textContent = Math.max(0, Math.ceil(timeLeft));
+}
 
-  startGame();
+function endGame(){
+  running = false;
+  paused = false;
+  // save highscore
+  if (score > highscore){
+    highscore = score;
+    localStorage.setItem('ctf_highscore', highscore);
+  }
+  UI.high.textContent = highscore;
+  UI.startBtn.textContent = 'Começar';
+  UI.pauseBtn.textContent = 'Pausar';
+  // show game over overlay
+  draw(); // final frame
+  setTimeout(()=> {
+    alert('Fim de jogo! Pontuação: ' + score + '\\nHigh score: ' + highscore);
+  }, 50);
+}
+
+/* --- Drawing --- */
+function draw(){
+  // clear (use logical size)
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // background stars or pattern
+  const g = ctx.createLinearGradient(0,0,0,H/devicePixelRatio);
+  g.addColorStop(0,'#06233a');
+  g.addColorStop(1,'#021223');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,W/devicePixelRatio,H/devicePixelRatio);
+
+  // draw items
+  items.forEach(it=>{
+    ctx.save();
+    ctx.translate(it.x + it.size/2, it.y + it.size/2);
+    ctx.rotate(it.angle);
+    ctx.font = `${Math.floor(it.size)}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // draw shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.fillText(it.text, 4, 4);
+    // main
+    ctx.fillStyle = '#fff';
+    ctx.fillText(it.text, 0, 0);
+    ctx.restore();
+  });
+
+  // draw player (basket)
+  player.y = (H/devicePixelRatio) - 80;
+  // basket shadow
+  ctx.beginPath();
+  ctx.ellipse(player.x + player.w/2, player.y + player.h + 10, player.w/2, 10, 0, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.fill();
+
+  // basket body
+  ctx.fillStyle = '#ffd166';
+  roundRect(ctx, player.x, player.y, player.w, player.h, 10);
+  ctx.fillStyle = '#583a16';
+  ctx.fill();
+
+  // basket rim
+  ctx.fillStyle = '#f6a623';
+  ctx.fillRect(player.x+8, player.y-8, player.w-16, 8);
+
+  // draw small fruits sitting in basket as indicator
+  ctx.font = "18px serif";
+  ctx.fillStyle = '#fff';
+  ctx.fillText('🧺', player.x + 10, player.y + player.h/2 + 6);
+
+  // HUD top-left
+  ctx.fillStyle = 'rgba(0,0,0,0.2)';
+  ctx.fillRect(12,12,210,56);
+  ctx.fillStyle = '#fff';
+  ctx.font = '14px Inter, sans-serif';
+  ctx.fillText('Score: ' + score, 20, 32);
+  ctx.fillText('Level: ' + level + '  Caught: ' + caught, 20, 52);
+}
+
+/* utility: rounded rect */
+function roundRect(ctx,x,y,w,h,r){
+  const radius = r;
+  ctx.beginPath();
+  ctx.moveTo(x+radius,y);
+  ctx.arcTo(x+w,y,x+w,y+h,radius);
+  ctx.arcTo(x+w,y+h,x,y+h,radius);
+  ctx.arcTo(x,y+h,x,y,radius);
+  ctx.arcTo(x,y,x+w,y,radius);
+  ctx.closePath();
+}
+
+/* Main loop */
+function loop(now){
+  if (!running) return;
+  if (paused) return;
+  const dt = Math.min(60, now - lastTime);
+  lastTime = now;
+  resizeCanvas(); // adapt to possible layout changes
+  update(dt);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+/* Resize canvas initially when DOM ready */
+window.addEventListener('load', resizeCanvas);
+
+/* initialize player */
+player = createPlayer();
+
+/* allow mouse move to control on desktop optionally */
+let mouseDown = false;
+canvas.addEventListener('mousemove', e=>{
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  if (mouseDown){
+    player.x = clamp(mx - player.w/2, 10, (W/devicePixelRatio) - player.w - 10);
+  }
+});
+canvas.addEventListener('mousedown', e=>{ mouseDown = true; });
+window.addEventListener('mouseup', e=>{ mouseDown = false; });
+
+/* keyboard loop for continuous movement handled in update */
+
 </script>
 </body>
 </html>
