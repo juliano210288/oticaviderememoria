@@ -3,85 +3,134 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Catch the Fruits 🍎</title>
+<title>Jogo da Ótica 👓</title>
 <style>
   body {
-    background-color: #0b1424;
+    background-color: #06101f;
     color: #fff;
-    font-family: Arial, sans-serif;
+    font-family: "Poppins", Arial, sans-serif;
     text-align: center;
+    margin: 0;
+    padding: 0;
   }
-  canvas {
-    background: linear-gradient(180deg, #021024, #002b55);
+
+  h1 {
+    color: #00e5ff;
+    margin-top: 15px;
+  }
+
+  #gameCanvas {
+    background: radial-gradient(circle at top, #02203b, #001428);
     display: block;
-    margin: 20px auto;
+    margin: 15px auto;
     border-radius: 10px;
   }
-  h1 { color: #ffd54f; }
+
+  #info {
+    margin-top: 10px;
+    font-size: 18px;
+  }
+
+  #level, #discount {
+    font-weight: bold;
+    color: #00e5ff;
+  }
+
+  #bonus {
+    font-size: 20px;
+    margin-top: 15px;
+    color: #00ff88;
+    font-weight: bold;
+  }
 </style>
 </head>
 <body>
-  <h1>Catch the Fruits 🍌</h1>
-  <p>Toque ou use as setas para mover a cesta!</p>
+  <h1>Jogo da Ótica 👓</h1>
   <canvas id="gameCanvas" width="320" height="480"></canvas>
-  <p id="score">Pontuação: 0</p>
+  <div id="info">
+    <p>Pontuação: <span id="score">0</span></p>
+    <p>Nível: <span id="level">1</span> | Desconto: <span id="discount">10%</span></p>
+  </div>
+  <p id="bonus"></p>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
     let basketX = canvas.width / 2 - 25;
-    let fruits = [];
+    let items = [];
     let score = 0;
+    let level = 1;
+    let speedMultiplier = 1;
+    let gameActive = true;
 
+    // Controle de toque (mobile)
     document.addEventListener('touchmove', e => {
       const touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
       basketX = Math.min(Math.max(touchX - 25, 0), canvas.width - 50);
     });
 
+    // Controle com teclado (PC)
     document.addEventListener('keydown', e => {
       if (e.key === 'ArrowLeft') basketX -= 20;
       if (e.key === 'ArrowRight') basketX += 20;
       basketX = Math.min(Math.max(basketX, 0), canvas.width - 50);
     });
 
-    function newFruit() {
-      fruits.push({
+    // Criar "lentes" que caem
+    function newItem() {
+      const shapes = ["👓", "🕶️", "🔍", "👁️"];
+      const emoji = shapes[Math.floor(Math.random() * shapes.length)];
+      items.push({
         x: Math.random() * (canvas.width - 20),
         y: 0,
-        speed: 2 + Math.random() * 3,
-        color: `hsl(${Math.random()*360}, 80%, 60%)`
+        speed: (2 + Math.random() * 2) * speedMultiplier,
+        emoji: emoji
       });
     }
 
     function update() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // cesta
-      ctx.fillStyle = '#ffca28';
-      ctx.fillRect(basketX, canvas.height - 40, 50, 20);
+      if (!gameActive) return;
 
-      // frutas
-      for (let i = 0; i < fruits.length; i++) {
-        const f = fruits[i];
-        f.y += f.speed;
-        ctx.beginPath();
-        ctx.arc(f.x + 10, f.y + 10, 10, 0, Math.PI * 2);
-        ctx.fillStyle = f.color;
-        ctx.fill();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Cesta
+      ctx.fillStyle = "#00e5ff";
+      ctx.fillRect(basketX, canvas.height - 40, 60, 20);
+
+      // Itens (óculos e lentes)
+      ctx.font = "24px Arial";
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        it.y += it.speed;
+        ctx.fillText(it.emoji, it.x, it.y);
 
         // colisão
-        if (f.y > canvas.height - 60 && f.x > basketX - 10 && f.x < basketX + 50) {
+        if (it.y > canvas.height - 60 && it.x > basketX - 10 && it.x < basketX + 60) {
           score++;
-          fruits.splice(i, 1);
+          items.splice(i, 1);
           i--;
-          document.getElementById('score').textContent = "Pontuação: " + score;
-        } else if (f.y > canvas.height) {
-          fruits.splice(i, 1);
+          document.getElementById('score').textContent = score;
+
+          // aumenta dificuldade a cada 10 pontos
+          if (score % 10 === 0 && level < 10) {
+            level++;
+            speedMultiplier += 0.3;
+            document.getElementById('level').textContent = level;
+            document.getElementById('discount').textContent = (level * 10) + "%";
+          }
+
+          if (level === 10 && score === 100) {
+            document.getElementById('bonus').textContent = "🎉 Parabéns! Ganhou 100% de desconto na armação! 🎉";
+            gameActive = false;
+          }
+        } else if (it.y > canvas.height) {
+          items.splice(i, 1);
           i--;
         }
       }
 
-      if (Math.random() < 0.03) newFruit();
+      if (Math.random() < 0.03) newItem();
       requestAnimationFrame(update);
     }
 
