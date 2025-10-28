@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Desafio da Visão — Memória</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Desafio da Visão</h1>
+      <p class="subtitle">Complete 10 níveis e conquiste até <strong>100% de desconto</strong>!</p>
+    </header>
+
+    <section id="menu" class="menu">
+      <button id="startBtn" class="btn primary">Começar</button>
+      <div class="progress-line">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+      <p id="levelDisplay" class="level-display">Nível: 0 / 10 — Desconto: 0%</p>
+    </section>
+
+    <section id="game" class="game hidden">
+      <div class="topbar">
+        <div class="timer">
+          <span id="timerText">00:00</span>
+          <div class="timer-bar-outer">
+            <div id="timerBar" class="timer-bar"></div>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="restartLevel" class="btn">Reiniciar Nível</button>
+          <button id="quitBtn" class="btn">Sair</button>
+        </div>
+      </div>
+
+      <div id="board" class="board"></div>
+    </section>
+
+    <!-- Modal: level complete / resgatar -->
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <h2 id="modalTitle">Parabéns!</h2>
+        <p id="modalMessage">Você ganhou <span id="modalDiscount">10%</span> de desconto</p>
+        <div class="modal-actions">
+          <a id="whatsappBtn" class="btn whatsapp" target="_blank" rel="noopener">Resgatar no WhatsApp</a>
+          <button id="modalNext" class="btn primary">Próximo Nível</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: time over -->
+    <div id="modalTime" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <h2>⏰ Tempo esgotado!</h2>
+        <p>Você não concluiu o nível a tempo.</p>
+        <div class="modal-actions">
+          <button id="retryBtn" class="btn primary">Tentar novamente</button>
+          <a id="whatsappTimeBtn" class="btn whatsapp" target="_blank" rel="noopener">Resgatar no WhatsApp</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final screen (quando atinge 100%) -->
+    <div id="finalModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <h2 id="finalTitle">🎉 Desconto máximo!</h2>
+        <p id="finalMsg">Incrível! Você atingiu 100% de desconto. Entre em contato com a loja e retire seu prêmio.</p>
+        <div class="modal-actions">
+          <a id="finalWhatsapp" class="btn whatsapp" target="_blank" rel="noopener">Chamar no WhatsApp</a>
+          <button id="finalPlayAgain" class="btn">Jogar Novamente</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <small>Ótica Videre — Jogo promocional.</small>
+    </footer>
+  </main>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
