@@ -1,0 +1,53 @@
+:root{
+--purple: #5b2e8a; /* roxo Videre */
+--orange: #ff7a24; /* laranja Videre */
+--bg: #0f0b12;
+--card-bg: #2b2130;
+--glass: rgba(255,255,255,0.06);
+}
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+margin:0;
+font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+background: linear-gradient(135deg, #0b0710 0%, #171016 100%);
+color:#fff;
+-webkit-font-smoothing:antialiased;
+}
+.container{
+max-width:1000px;
+margin:24px auto;
+padding:20px;
+}
+.header{
+text-align:center;
+margin-bottom:16px;
+}
+.header h1{font-size:2rem; margin:0}
+.subtitle{margin:6px 0 0; color: #dcd6e6}
+.menu{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:18px}
+.btn{background:var(--glass);border:1px solid rgba(255,255,255,0.06);padding:10px 16px;border-radius:12px;color:#fff;cursor:pointer}
+.btn.primary{background:linear-gradient(90deg,var(--purple),var(--orange));box-shadow:0 6px 18px rgba(91,46,138,0.18);border:none}
+.btn.whatsapp{display:inline-block;background:#25D366;color:#071018;text-decoration:none;padding:10px 14px;border-radius:12px}
+.progress-line{width:100%;height:10px;background:rgba(255,255,255,0.04);border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--purple),var(--orange));transition:width 400ms ease}
+.level-display{font-size:0.95rem;color:#e9e2ff}
+.game{display:flex;flex-direction:column;gap:12px}
+.board{display:grid;gap:12px;justify-content:center}
+.card{
+width:100px;height:120px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(0,0,0,0.12));box-shadow:0 4px 10px rgba(0,0,0,0.5);cursor:pointer;position:relative;user-select:none;overflow:hidden
+}
+.card img{max-width:82%;max-height:82%;display:block;opacity:0}
+.card.flipped img{opacity:1;transform:scale(1);transition:opacity 180ms, transform 180ms}
+.card.backface{display:flex;align-items:center;justify-content:center}
+.card .back{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.hidden{display:none}
+.game-controls{display:flex;gap:10px;justify-content:center}
+.win-screen{text-align:center;padding:20px}
+.footer{text-align:center;margin-top:18px;color:rgba(255,255,255,0.45)}
+
+
+/* Responsive board sizes based on number of cards (we'll change grid via JS) */
+@media (max-width:600px){
+.card{width:72px;height:86px}
+}
