@@ -1,189 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snake da Ótica 👓</title>
-<style>
-  body {
-    background: radial-gradient(circle at top, #011324, #00101a);
-    color: #fff;
-    font-family: "Poppins", Arial, sans-serif;
-    text-align: center;
-    margin: 0;
-  }
-
-  h1 {
-    color: #00e5ff;
-    margin-top: 15px;
-  }
-
-  #gameCanvas {
-    background: linear-gradient(180deg, #012b4a, #001522);
-    display: block;
-    margin: 15px auto;
-    border-radius: 8px;
-  }
-
-  #scoreboard {
-    font-size: 18px;
-    margin-top: 10px;
-  }
-
-  #discount {
-    font-weight: bold;
-    color: #00ff9d;
-  }
-
-  #winMsg {
-    font-size: 20px;
-    color: #00ff88;
-    margin-top: 15px;
-    font-weight: bold;
-  }
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Desafio da Visão — Memória</title>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <h1>Snake da Ótica 👓</h1>
-  <canvas id="gameCanvas" width="320" height="320"></canvas>
-  <div id="scoreboard">
-    Pontos: <span id="score">0</span> | Desconto: <span id="discount">0%</span>
-  </div>
-  <p id="winMsg"></p>
+<main class="container">
+<header class="header">
+<h1>Desafio da Visão</h1>
+<p class="subtitle">Complete 10 níveis e conquiste até <strong>100% de desconto</strong>!</p>
+</header>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const box = 16;
-    let snake = [{ x: 8 * box, y: 8 * box }];
-    let direction = "right";
-    let food = randomPosition();
-    let score = 0;
-    let discount = 0;
-    let gameActive = true;
 
-    const foods = ["👓", "🕶️", "🔍", "👁️"];
+<section id="menu" class="menu">
+<button id="startBtn" class="btn primary">Começar</button>
+<div class="progress-line">
+<div id="progressFill" class="progress-fill"></div>
+</div>
+<p id="levelDisplay" class="level-display">Nível: 0 / 10 — Desconto: 0%</p>
+</section>
 
-    document.addEventListener("keydown", e => {
-      if (e.key === "ArrowLeft" && direction !== "right") direction = "left";
-      if (e.key === "ArrowRight" && direction !== "left") direction = "right";
-      if (e.key === "ArrowUp" && direction !== "down") direction = "up";
-      if (e.key === "ArrowDown" && direction !== "up") direction = "down";
-    });
 
-    // Controle de toque (mobile)
-    let touchStartX = 0, touchStartY = 0;
-    document.addEventListener("touchstart", e => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-    });
-    document.addEventListener("touchmove", e => {
-      if (!touchStartX || !touchStartY) return;
-      let dx = e.touches[0].clientX - touchStartX;
-      let dy = e.touches[0].clientY - touchStartY;
-      if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 0 && direction !== "left") direction = "right";
-        else if (dx < 0 && direction !== "right") direction = "left";
-      } else {
-        if (dy > 0 && direction !== "up") direction = "down";
-        else if (dy < 0 && direction !== "down") direction = "up";
-      }
-      touchStartX = 0;
-      touchStartY = 0;
-    });
+<section id="game" class="game hidden">
+<div id="board" class="board"></div>
+<div class="game-controls">
+<button id="restartLevel" class="btn">Reiniciar Nível</button>
+<button id="nextLevel" class="btn primary hidden">Próximo Nível</button>
+</div>
+</section>
 
-    function randomPosition() {
-      return {
-        x: Math.floor(Math.random() * 20) * box,
-        y: Math.floor(Math.random() * 20) * box,
-        emoji: foods[Math.floor(Math.random() * foods.length)]
-      };
-    }
 
-    function drawGame() {
-      if (!gameActive) return;
+<section id="winScreen" class="win-screen hidden">
+<h2 id="winTitle">Parabéns!</h2>
+<p id="winMessage">Você ganhou <span id="winDiscount">0%</span> de desconto.</p>
+<a id="whatsappBtn" class="btn whatsapp" target="_blank" rel="noopener">Resgatar no WhatsApp</a>
+<button id="playAgain" class="btn">Jogar Novamente</button>
+</section>
 
-      ctx.fillStyle = "#002238";
-      ctx.fillRect(0, 0, 320, 320);
 
-      // desenhar cobrinha
-      for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = i === 0 ? "#00e5ff" : "#00bcd4";
-        ctx.fillRect(snake[i].x, snake[i].y, box - 1, box - 1);
-      }
+<footer class="footer">
+<small>Ótica Videre — Jogo promocional. Número da loja no WhatsApp configurado.</small>
+</footer>
+</main>
 
-      // desenhar comida (emoji)
-      ctx.font = "20px Arial";
-      ctx.fillText(food.emoji, food.x + 2, food.y + 16);
 
-      // cabeça da cobra
-      let headX = snake[0].x;
-      let headY = snake[0].y;
-      if (direction === "right") headX += box;
-      if (direction === "left") headX -= box;
-      if (direction === "up") headY -= box;
-      if (direction === "down") headY += box;
-
-      // parede - teletransporte
-      if (headX >= 320) headX = 0;
-      if (headX < 0) headX = 304;
-      if (headY >= 320) headY = 0;
-      if (headY < 0) headY = 304;
-
-      const newHead = { x: headX, y: headY };
-
-      // colisão com corpo
-      for (let i = 1; i < snake.length; i++) {
-        if (snake[i].x === newHead.x && snake[i].y === newHead.y) {
-          gameOver();
-          return;
-        }
-      }
-
-      snake.unshift(newHead);
-
-      // comer comida
-      if (headX === food.x && headY === food.y) {
-        score++;
-        document.getElementById("score").textContent = score;
-
-        if (score % 5 === 0 && discount < 100) {
-          discount += 10;
-          document.getElementById("discount").textContent = discount + "%";
-        }
-
-        if (discount >= 100) {
-          document.getElementById("winMsg").textContent =
-            "🎉 Parabéns! Ganhou 100% de desconto na armação! 🎉";
-          gameActive = false;
-        }
-
-        food = randomPosition();
-      } else {
-        snake.pop();
-      }
-    }
-
-    function gameOver() {
-      gameActive = false;
-      document.getElementById("winMsg").textContent = "😵 Fim de jogo! Toque para tentar novamente.";
-      canvas.addEventListener("click", resetGame);
-    }
-
-    function resetGame() {
-      snake = [{ x: 8 * box, y: 8 * box }];
-      direction = "right";
-      food = randomPosition();
-      score = 0;
-      discount = 0;
-      document.getElementById("score").textContent = 0;
-      document.getElementById("discount").textContent = "0%";
-      document.getElementById("winMsg").textContent = "";
-      gameActive = true;
-      canvas.removeEventListener("click", resetGame);
-    }
-
-    setInterval(drawGame, 120);
-  </script>
+<script src="js/script.js"></script>
 </body>
 </html>
