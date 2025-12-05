@@ -41,6 +41,11 @@
         align-items: center;
         box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         transition: 0.2s;
+
+        /* FIXAR NO TOPO */
+        position: sticky;
+        top: 0;
+        z-index: 10;
     }
 
     .cat-btn:hover {
@@ -54,7 +59,8 @@
 
     .categoria {
         display: none;
-        margin-top: 8px;
+        margin-top: 0;
+        padding-top: 10px;
         background: #ffffff;
         padding: 14px;
         border-radius: 14px;
@@ -144,9 +150,23 @@
         font-size: 18px;
     }
 
-    /* Esconde o resumo original da tela */
+    /* Esconde o resumo original */
     #resumo {
         display: none;
+    }
+
+    /* Botão limpar */
+    #limpar {
+        width: 100%;
+        margin-top: 20px;
+        padding: 14px;
+        background: #ff3b30;
+        color: white;
+        font-size: 18px;
+        border: none;
+        border-radius: 12px;
+        font-weight: bold;
+        cursor: pointer;
     }
 </style>
 
@@ -225,7 +245,6 @@ function salvar() {
     localStorage.setItem("vendido", JSON.stringify(vendidoSalvo));
 }
 
-/* ------------------- RESUMO DO PEDIDO ------------------- */
 function gerarResumo() {
     let texto = "";
     let total = 0;
@@ -260,7 +279,6 @@ function limparTudo() {
     location.reload();
 }
 
-/* ----------- Atualização da barra fixa ----------- */
 function atualizarBarraFixa(total) {
     document.getElementById("total-barra").innerText = "R$ " + total.toFixed(2);
 }
@@ -311,13 +329,10 @@ for (let cat in categorias) {
 
 </div>
 
-<!-- RESUMO OCULTO -->
 <div id="resumo">Nenhum item selecionado.</div>
 
-<!-- BOTÃO LIMPAR -->
 <button id="limpar" onclick="limparTudo()">LIMPAR</button>
 
-<!-- BARRA FIXA ESTILO iFood -->
 <div id="barra-fixa">
     <span id="total-barra">R$ 0,00</span>
     <button id="ver-pedido-btn" onclick="alert(resumo.innerText)">Ver pedido</button>
