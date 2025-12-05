@@ -2,211 +2,173 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Pedido de Sorvetes</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Sorvetes</title>
 
-<!-- Ícone para adicionar à Tela Inicial -->
-<link rel="apple-touch-icon" href="icone.png">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
     body {
-        font-family: -apple-system, Arial, sans-serif;
-        background: var(--bg);
-        color: var(--txt);
-        padding: 12px;
-        max-width: 480px;
-        margin: auto;
-        transition: 0.3s ease;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Arial;
+        margin: 0;
+        background: #f2f2f7;
+        color: #333;
+        padding-bottom: 120px;
     }
 
-    /* MODO CLARO */
-    :root {
-        --bg: #f2f2f7;
-        --card: #ffffff;
-        --txt: #222;
-        --btn-primary: #007aff;
-        --btn-danger: #ff3b30;
-        --btn-success: #34c759;
-        --shadow: rgba(0,0,0,0.12);
-    }
-
-    /* MODO ESCURO AUTOMÁTICO */
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --bg: #1c1c1e;
-            --card: #2c2c2e;
-            --txt: #f2f2f7;
-            --shadow: rgba(255,255,255,0.05);
-        }
-    }
-
-    h1 {
-        text-align: center;
-        font-size: 26px;
-        font-weight: 900;
-        margin-bottom: 20px;
-    }
-
+    /* Botões de categoria */
     .cat-btn {
         width: 100%;
-        background: var(--btn-primary);
-        color: white;
-        padding: 18px;
-        font-size: 20px;
+        background: #fff;
         border: none;
-        border-radius: 14px;
-        margin-top: 12px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.2s;
+        padding: 16px;
+        text-align: left;
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 6px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px #0001;
     }
 
-    /* Animação da categoria abrindo */
+    /* Caixa que abre com os itens */
     .categoria {
         display: none;
-        background: var(--card);
-        padding: 14px;
-        border-radius: 14px;
-        margin-top: 8px;
-        box-shadow: 0 4px 12px var(--shadow);
-        overflow: hidden;
-        max-height: 0;
-        transition: max-height .35s ease;
-    }
-
-    .categoria.aberta {
-        display: block;
-        max-height: 5000px;
+        background: #fff;
+        margin-top: 4px;
+        margin-bottom: 10px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        box-shadow: 0 3px 6px #0002;
     }
 
     .item {
-        background: var(--card);
-        padding: 14px;
-        margin: 12px 0;
-        border-radius: 14px;
-        box-shadow: 0 2px 6px var(--shadow);
+        padding: 12px 0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .item:last-child {
+        border-bottom: none;
     }
 
     .nome {
-        font-size: 20px;
-        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 6px;
     }
 
     .valor {
-        color: var(--btn-primary);
-        font-weight: bold;
+        font-size: 14px;
+        color: #666;
         margin-bottom: 8px;
     }
 
     .controls {
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin-top: 8px;
+        gap: 14px;
     }
 
     .btn {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
         border: none;
-        cursor: pointer;
-        font-size: 26px;
-        font-weight: bold;
+        font-size: 20px;
+        background: #e5e5ea;
     }
 
-    .menos { background: var(--btn-danger); color: white; }
-    .mais  { background: var(--btn-success); color: white; }
+    .btn:active {
+        background: #d4d4d8;
+    }
 
     .numero {
-        width: 45px;
-        text-align: center;
-        font-size: 22px;
-        font-weight: bold;
-    }
-
-    /* RESUMO FIXO ESTILO iOS */
-    #resumo-box {
-        position: sticky;
-        bottom: 15px;
-        background: var(--card);
-        padding: 18px;
-        border-radius: 18px;
-        box-shadow: 0 8px 20px var(--shadow);
         font-size: 18px;
-        font-weight: bold;
-        white-space: pre-line;
-        backdrop-filter: blur(12px);
+        width: 30px;
+        text-align: center;
+        font-weight: 600;
     }
 
-    #limpar {
+    /* Painel fixo no rodapé */
+    #rodape {
+        position: fixed;
+        left: 0;
+        bottom: 0;
         width: 100%;
-        background: var(--btn-danger);
-        color: white;
-        padding: 18px;
-        font-size: 20px;
-        border: none;
-        border-radius: 14px;
-        margin-top: 25px;
-        cursor: pointer;
-        font-weight: bold;
+        padding: 16px;
+        background: #fff;
+        box-shadow: 0 -2px 10px #0003;
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
     }
-
 </style>
 </head>
 <body>
 
-<h1>Tirar Pedido</h1>
 <div id="conteudo"></div>
 
-<!-- RESUMO FIXO -->
-<div id="resumo-box">Nenhum item selecionado.</div>
-
-<!-- BOTÃO LIMPAR -->
-<button id="limpar" onclick="limparTudo()">LIMPAR</button>
+<div id="rodape">
+    Total: R$ <span id="total">0,00</span>
+</div>
 
 <script>
-/* ------------------- PREÇOS ------------------- */
-let precoPorCategoria = {
-    "PALETAS FRUTIVERÃO": 18,
-    "AO LEITE FRUTIVERÃO": 8,
-    "TROPICAL FRUTIVERÃO": 6,
-    "ESPECIAL FRUTVERÃO": 13,
-    "LANÇAMENTOS": null
+const categorias = {
+    "PALETAS": ["Raffaello", "Oreo", "Ferrero"],
+    "POTES": ["Morango", "Chocolate"],
+    "LANÇAMENTOS": ["Churros Especial", "Nutella Suprema"]
 };
 
-let precosLancamentos = {
-    "Pistache": 16,
-    "Unicórnio": 10
+const precoPorCategoria = {
+    "PALETAS": 12,
+    "POTES": 10
 };
 
-/* ------------------- CATEGORIAS ------------------- */
-let categorias = {
-    "PALETAS FRUTIVERÃO": [
-        "Raffaello","Oreo","Ferrero","Kinder Ovo","Kinder Bueno","M&M","Choco Maltine",
-        "Milk Trufado","Babalu","Blue Ice","Sensação","Morango","Maracujá","Açaí",
-        "Iogurte c/ Amora","Menta c/ Chocolate","Paçoca","Capuccino","Banana com Avelã",
-        "Coco c/ Abobora","Coco c/ Doce de Leite","Tapioca","Abacaxi Zero"
-    ],
-    "AO LEITE FRUTIVERÃO": [
-        "Morango","Chocolate","Leite Condensado","Milho-Verde","Açaí c/ Morango",
-        "Coco","Coco Queimado","Abóbora c/ Coco","Amendoim","Abacate","Blue Ice"
-    ],
-    "TROPICAL FRUTIVERÃO": [
-        "Uva","Limão","Maracujá","Manga","Abacaxi","Melancia","Tangerina",
-        "Maçã Verde","Groselha","Tutti Frutti","Pinta Língua"
-    ],
-    "ESPECIAL FRUTVERÃO": [
-        "Skimo morango","Skimo ao leite","Milk trufado","Brigadeiro","Chococo",
-        "Torta de limão","Itu napolitano","Frutblito","Sunday de chocolate","Sundae de Morango"
-    ],
-    "LANÇAMENTOS": ["Pistache","Unicórnio"]
+const precosLancamentos = {
+    "Churros Especial": 15,
+    "Nutella Suprema": 16
 };
 
-let vendidoSalvo = JSON.parse(localStorage.getItem("vendido")) || {};
-let id = 1;
+let idCount = 1;
+let vendas = {};
 
-/* ------------------- GERAR ITENS (DOM) ------------------- */
+function toggle(cat) {
+    const box = document.getElementById("cat_" + cat);
+    box.style.display = (box.style.display === "block") ? "none" : "block";
+}
+
+function add(id) {
+    vendas[id] = (vendas[id] || 0) + 1;
+    document.getElementById("vend_" + id).innerText = vendas[id];
+    atualizarTotal();
+}
+
+function remove(id) {
+    if (!vendas[id] || vendas[id] === 0) return;
+    vendas[id]--;
+    document.getElementById("vend_" + id).innerText = vendas[id];
+    atualizarTotal();
+}
+
+function atualizarTotal() {
+    let total = 0;
+    let idx = 1;
+
+    for (let cat in categorias) {
+        categorias[cat].forEach(sabor => {
+            const qnt = vendas[idx] || 0;
+
+            let preco = (cat === "LANÇAMENTOS")
+                ? precosLancamentos[sabor]
+                : precoPorCategoria[cat];
+
+            total += qnt * preco;
+            idx++;
+        });
+    }
+
+    document.getElementById("total").innerText = total.toFixed(2).replace(".", ",");
+}
+
+/* GERA TELA */
 let container = document.getElementById("conteudo");
 
 for (let cat in categorias) {
@@ -228,29 +190,32 @@ for (let cat in categorias) {
         nome.className = "nome";
         nome.innerText = sabor;
 
-        let preco = (cat === "LANÇAMENTOS") ? precosLancamentos[sabor] : precoPorCategoria[cat];
-
         let valor = document.createElement("div");
         valor.className = "valor";
+
+        let preco = (cat === "LANÇAMENTOS")
+            ? precosLancamentos[sabor]
+            : precoPorCategoria[cat];
+
         valor.innerText = `Preço: R$ ${preco}`;
 
         let controls = document.createElement("div");
         controls.className = "controls";
 
         let menos = document.createElement("button");
-        menos.className = "btn menos";
-        menos.innerText = "-";
-        menos.onclick = () => remove(id);
+        menos.className = "btn";
+        menos.innerText = "−";
+        menos.onclick = () => remove(idCount);
 
         let numero = document.createElement("span");
         numero.className = "numero";
-        numero.id = "vend_" + id;
-        numero.innerText = vendidoSalvo[id] || 0;
+        numero.id = "vend_" + idCount;
+        numero.innerText = 0;
 
         let mais = document.createElement("button");
-        mais.className = "btn mais";
+        mais.className = "btn";
         mais.innerText = "+";
-        mais.onclick = () => add(id);
+        mais.onclick = () => add(idCount);
 
         controls.appendChild(menos);
         controls.appendChild(numero);
@@ -261,69 +226,13 @@ for (let cat in categorias) {
         item.appendChild(controls);
 
         box.appendChild(item);
-        id++;
+
+        vendas[idCount] = 0;
+        idCount++;
     });
 
     container.appendChild(box);
 }
-
-/* ------------------- FUNÇÕES ------------------- */
-function toggle(cat) {
-    let box = document.getElementById("cat_" + cat);
-    box.classList.toggle("aberta");
-}
-
-function add(id) {
-    let el = document.getElementById("vend_" + id);
-    el.innerText = Number(el.innerText) + 1;
-    vendidoSalvo[id] = Number(el.innerText);
-    salvar();
-    gerarResumo();
-}
-
-function remove(id) {
-    let el = document.getElementById("vend_" + id);
-    if (Number(el.innerText) > 0) el.innerText--;
-    vendidoSalvo[id] = Number(el.innerText);
-    salvar();
-    gerarResumo();
-}
-
-function salvar() {
-    localStorage.setItem("vendido", JSON.stringify(vendidoSalvo));
-}
-
-function gerarResumo() {
-    let texto = "";
-    let total = 0;
-    let i = 1;
-
-    for (let cat in categorias) {
-        let blocos = "";
-
-        categorias[cat].forEach(sabor => {
-            let q = vendidoSalvo[i] || 0;
-            if (q > 0) {
-                blocos += `${q} - ${sabor}\n`;
-                let preco = (cat === "LANÇAMENTOS") ? precosLancamentos[sabor] : precoPorCategoria[cat];
-                total += q * preco;
-            }
-            i++;
-        });
-
-        if (blocos !== "") texto += `${cat}\n${blocos}\n`;
-    }
-
-    texto += `TOTAL: R$ ${total.toFixed(2)}`;
-    document.getElementById("resumo-box").innerText = texto;
-}
-
-function limparTudo() {
-    localStorage.clear();
-    location.reload();
-}
-
-gerarResumo();
 </script>
 
 </body>
