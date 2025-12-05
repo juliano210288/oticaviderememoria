@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Tirar Pedido - Sorvetes</title>
+<title>Pedido de Sorvetes</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -12,14 +12,14 @@
         padding: 12px;
         max-width: 480px;
         margin: auto;
-        color: #333;
     }
 
     h1 {
         text-align: center;
-        font-size: 28px;
-        font-weight: 900;
         margin-bottom: 20px;
+        font-size: 26px;
+        font-weight: 900;
+        color: #222;
     }
 
     .cat-btn {
@@ -33,14 +33,13 @@
         margin-top: 15px;
         cursor: pointer;
         font-weight: bold;
-        box-shadow: 0 3px 7px rgba(0,0,0,0.15);
     }
 
     .categoria {
         display: none;
-        background: #fff;
-        padding: 14px;
         margin-top: 8px;
+        background: #ffffff;
+        padding: 14px;
         border-radius: 14px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
@@ -61,63 +60,63 @@
     .valor {
         color: #007aff;
         font-weight: bold;
-        margin-top: 2px;
+        margin-bottom: 8px;
     }
 
     .controls {
-        margin-top: 10px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
+        margin-top: 10px;
     }
 
     .btn {
         width: 45px;
         height: 45px;
-        border: none;
         border-radius: 12px;
+        border: none;
+        cursor: pointer;
         font-size: 26px;
         font-weight: bold;
-        cursor: pointer;
-        color: white;
     }
 
-    .menos { background: #ff3b30; }
-    .mais  { background: #34c759; }
+    .menos { background: #ff3b30; color: white; }
+    .mais  { background: #34c759; color: white; }
 
     .numero {
         width: 45px;
         text-align: center;
-        font-size: 24px;
+        font-size: 22px;
         font-weight: bold;
     }
 
-    #totalArea {
-        margin-top: 20px;
-        padding: 20px;
-        background: #e6fff0;
-        border-radius: 16px;
-        text-align: center;
-        font-size: 22px;
-        font-weight: 900;
-        color: #0b6b1a;
+    #resumo {
+        margin-top: 25px;
+        padding: 18px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        font-size: 18px;
+        font-weight: bold;
+        white-space: pre-line;
     }
 
-    #relatorio {
+    #limpar {
         width: 100%;
-        background: #5856d6;
+        background: #ff3b30;
         color: white;
         padding: 18px;
         font-size: 20px;
-        margin-top: 25px;
         border: none;
         border-radius: 14px;
+        margin-top: 25px;
         cursor: pointer;
         font-weight: bold;
     }
 </style>
 
 <script>
+/* ------------------- PREÇOS ------------------- */
 let precoPorCategoria = {
     "PALETAS FRUTIVERÃO": 18,
     "AO LEITE FRUTIVERÃO": 8,
@@ -131,6 +130,7 @@ let precosLancamentos = {
     "Unicórnio": 10
 };
 
+/* ------------------- CATEGORIAS ------------------- */
 let categorias = {
     "PALETAS FRUTIVERÃO": [
         "Raffaello","Oreo","Ferrero","Kinder Ovo","Kinder Bueno","M&M","Choco Maltine",
@@ -138,23 +138,29 @@ let categorias = {
         "Iogurte c/ Amora","Menta c/ Chocolate","Paçoca","Capuccino","Banana com Avelã",
         "Coco c/ Abobora","Coco c/ Doce de Leite","Tapioca","Abacaxi Zero"
     ],
+
     "AO LEITE FRUTIVERÃO": [
         "Morango","Chocolate","Leite Condensado","Milho-Verde","Açaí c/ Morango",
         "Coco","Coco Queimado","Abóbora c/ Coco","Amendoim","Abacate","Blue Ice"
     ],
+
     "TROPICAL FRUTIVERÃO": [
         "Uva","Limão","Maracujá","Manga","Abacaxi","Melancia","Tangerina",
         "Maçã Verde","Groselha","Tutti Frutti","Pinta Língua"
     ],
+
     "ESPECIAL FRUTVERÃO": [
         "Skimo morango","Skimo ao leite","Milk trufado","Brigadeiro","Chococo",
         "Torta de limão","Itu napolitano","Frutblito","Sunday de chocolate","Sundae de Morango"
     ],
+
     "LANÇAMENTOS": ["Pistache","Unicórnio"]
 };
 
-let vendido = {};
 let id = 1;
+let vendidoSalvo = JSON.parse(localStorage.getItem("vendido")) || {};
+
+/* ------------------- FUNÇÕES ------------------- */
 
 function toggle(cat) {
     let el = document.getElementById("cat_" + cat);
@@ -162,93 +168,73 @@ function toggle(cat) {
 }
 
 function add(id) {
-    vendido[id] = (vendido[id] || 0) + 1;
-    document.getElementById("vend_" + id).innerText = vendido[id];
-    calcularTotal();
+    let campo = document.getElementById("vend_" + id);
+    campo.innerText = Number(campo.innerText) + 1;
+    vendidoSalvo[id] = Number(campo.innerText);
+    salvar();
+    gerarResumo();
 }
 
 function remove(id) {
-    if ((vendido[id] || 0) > 0) vendido[id]--;
-    document.getElementById("vend_" + id).innerText = vendido[id];
-    calcularTotal();
+    let campo = document.getElementById("vend_" + id);
+    if (Number(campo.innerText) > 0) campo.innerText--;
+    vendidoSalvo[id] = Number(campo.innerText);
+    salvar();
+    gerarResumo();
 }
 
-function calcularTotal() {
-    let total = 0;
-    let i = 1;
-
-    for (let cat in categorias) {
-        categorias[cat].forEach(sabor => {
-
-            let preco = precoPorCategoria[cat];
-            if (cat === "LANÇAMENTOS") preco = precosLancamentos[sabor];
-
-            total += (vendido[i] || 0) * preco;
-            i++;
-        });
-    }
-
-    document.getElementById("valorTotal").innerText = total.toFixed(2);
+function salvar() {
+    localStorage.setItem("vendido", JSON.stringify(vendidoSalvo));
 }
 
-function gerarRelatorio() {
+/* ------------------- RESUMO DO PEDIDO ------------------- */
+function gerarResumo() {
     let texto = "";
-    let i = 1;
     let total = 0;
+    let i = 1;
 
     for (let cat in categorias) {
-        let bloco = "";
-        let totalCat = 0;
-
+        let blocos = "";
         categorias[cat].forEach(sabor => {
-
-            let qtd = vendido[i] || 0;
-            let preco = precoPorCategoria[cat];
-            if (cat === "LANÇAMENTOS") preco = precosLancamentos[sabor];
-
-            totalCat += qtd * preco;
-
-            if (qtd > 0) {
-                bloco += `${qtd} - ${sabor}\n`;
+            let q = vendidoSalvo[i] || 0;
+            if (q > 0) {
+                blocos += `${q} - ${sabor}\n`;
+                let preco = precoPorCategoria[cat];
+                if (cat === "LANÇAMENTOS") preco = precosLancamentos[sabor];
+                total += q * preco;
             }
-
             i++;
         });
 
-        if (bloco !== "") {
-            texto += `${cat}\n${bloco}\n`;
-        }
-
-        total += totalCat;
+        if (blocos !== "")
+            texto += `${cat}\n${blocos}\n`;
     }
 
-    texto += `TOTAL: R$ ${total.toFixed(2)}\n`;
+    texto += `TOTAL: R$ ${total.toFixed(2)}`;
 
-    let blob = new Blob([texto], { type: "text/plain" });
-    let url = URL.createObjectURL(blob);
+    document.getElementById("resumo").innerText = texto;
+}
 
-    let a = document.createElement("a");
-    a.href = url;
-    a.download = "pedido.txt";
-    a.click();
-
-    URL.revokeObjectURL(url);
+function limparTudo() {
+    localStorage.clear();
+    location.reload();
 }
 </script>
-</head>
 
+</head>
 <body>
 
 <h1>Tirar Pedido</h1>
 
 <div id="conteudo">
+
 <script>
 for (let cat in categorias) {
-
     document.write(`<button class="cat-btn" onclick="toggle('${cat}')">${cat}</button>`);
     document.write(`<div id="cat_${cat}" class="categoria">`);
 
     categorias[cat].forEach(sabor => {
+        let v = vendidoSalvo[id] || 0;
 
         document.write(`
             <div class="item">
@@ -259,7 +245,7 @@ for (let cat in categorias) {
 
                 <div class="controls">
                     <button class="btn menos" onclick="remove(${id})">-</button>
-                    <span class="numero" id="vend_${id}">0</span>
+                    <span class="numero" id="vend_${id}">${v}</span>
                     <button class="btn mais" onclick="add(${id})">+</button>
                 </div>
             </div>
@@ -271,13 +257,18 @@ for (let cat in categorias) {
     document.write("</div>");
 }
 </script>
+
 </div>
 
-<div id="totalArea">
-    TOTAL: R$ <span id="valorTotal">0.00</span>
-</div>
+<!-- RESUMO DO PEDIDO -->
+<div id="resumo">Nenhum item selecionado.</div>
 
-<button id="relatorio" onclick="gerarRelatorio()">GERAR PEDIDO</button>
+<!-- BOTÃO LIMPAR -->
+<button id="limpar" onclick="limparTudo()">LIMPAR</button>
+
+<script>
+gerarResumo();
+</script>
 
 </body>
 </html>
