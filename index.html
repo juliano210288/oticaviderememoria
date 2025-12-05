@@ -12,6 +12,7 @@
         padding: 12px;
         max-width: 480px;
         margin: auto;
+        padding-bottom: 120px; /* espaço para a barra fixa */
     }
 
     h1 {
@@ -22,17 +23,33 @@
         color: #222;
     }
 
+    /* ---------------------- CATEGORIAS ESTILO iOS ---------------------- */
     .cat-btn {
         width: 100%;
-        background: #007aff;
-        color: white;
+        background: #fff;
+        color: #333;
         padding: 18px;
         font-size: 20px;
         border: none;
         border-radius: 14px;
-        margin-top: 15px;
+        margin-top: 12px;
         cursor: pointer;
         font-weight: bold;
+        text-align: left;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        transition: 0.2s;
+    }
+
+    .cat-btn:hover {
+        background: #f7f7f7;
+    }
+
+    .seta {
+        font-size: 20px;
+        transition: transform 0.2s;
     }
 
     .categoria {
@@ -44,6 +61,7 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
+    /* ---------------------- ITENS ---------------------- */
     .item {
         background: #fff;
         padding: 14px;
@@ -90,28 +108,45 @@
         font-weight: bold;
     }
 
-    #resumo {
-        margin-top: 25px;
-        padding: 18px;
-        background: #fff;
-        border-radius: 14px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        font-size: 18px;
-        font-weight: bold;
-        white-space: pre-line;
-    }
-
-    #limpar {
-        width: 100%;
-        background: #ff3b30;
+    /* ---------------------- BARRA FIXA ESTILO iFood ---------------------- */
+    #barra-fixa {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-width: 480px;
+        margin: auto;
+        background: #007aff;
         color: white;
         padding: 18px;
         font-size: 20px;
-        border: none;
-        border-radius: 14px;
-        margin-top: 25px;
-        cursor: pointer;
         font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 18px 18px 0 0;
+        box-shadow: 0 -4px 14px rgba(0,0,0,0.25);
+    }
+
+    #total-barra {
+        font-size: 22px;
+        font-weight: 900;
+    }
+
+    #ver-pedido-btn {
+        background: white;
+        color: #007aff;
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    /* Esconde o resumo original da tela */
+    #resumo {
+        display: none;
     }
 </style>
 
@@ -164,7 +199,10 @@ let vendidoSalvo = JSON.parse(localStorage.getItem("vendido")) || {};
 
 function toggle(cat) {
     let el = document.getElementById("cat_" + cat);
+    let seta = document.getElementById("seta_" + cat);
+
     el.style.display = el.style.display === "block" ? "none" : "block";
+    seta.style.transform = el.style.display === "block" ? "rotate(90deg)" : "rotate(0deg)";
 }
 
 function add(id) {
@@ -213,11 +251,18 @@ function gerarResumo() {
     texto += `TOTAL: R$ ${total.toFixed(2)}`;
 
     document.getElementById("resumo").innerText = texto;
+
+    atualizarBarraFixa(total);
 }
 
 function limparTudo() {
     localStorage.clear();
     location.reload();
+}
+
+/* ----------- Atualização da barra fixa ----------- */
+function atualizarBarraFixa(total) {
+    document.getElementById("total-barra").innerText = "R$ " + total.toFixed(2);
 }
 </script>
 
@@ -230,7 +275,13 @@ function limparTudo() {
 
 <script>
 for (let cat in categorias) {
-    document.write(`<button class="cat-btn" onclick="toggle('${cat}')">${cat}</button>`);
+    document.write(`
+        <button class="cat-btn" onclick="toggle('${cat}')">
+            ${cat}
+            <span class="seta" id="seta_${cat}">▶</span>
+        </button>
+    `);
+
     document.write(`<div id="cat_${cat}" class="categoria">`);
 
     categorias[cat].forEach(sabor => {
@@ -260,8 +311,17 @@ for (let cat in categorias) {
 
 </div>
 
-<!-- RESUMO DO PEDIDO -->
+<!-- RESUMO OCULTO -->
 <div id="resumo">Nenhum item selecionado.</div>
 
 <!-- BOTÃO LIMPAR -->
 <button id="limpar" onclick="limparTudo()">LIMPAR</button>
+
+<!-- BARRA FIXA ESTILO iFood -->
+<div id="barra-fixa">
+    <span id="total-barra">R$ 0,00</span>
+    <button id="ver-pedido-btn" onclick="alert(resumo.innerText)">Ver pedido</button>
+</div>
+
+</body>
+</html>
