@@ -1,84 +1,283 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Desafio da Visão — Memória</title>
-  <link rel="stylesheet" href="css/styles.css">
+<meta charset="UTF-8">
+<title>Tirar Pedido - Sorvetes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f2f2f7;
+        padding: 12px;
+        max-width: 480px;
+        margin: auto;
+        color: #333;
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 28px;
+        font-weight: 900;
+        margin-bottom: 20px;
+    }
+
+    .cat-btn {
+        width: 100%;
+        background: #007aff;
+        color: white;
+        padding: 18px;
+        font-size: 20px;
+        border: none;
+        border-radius: 14px;
+        margin-top: 15px;
+        cursor: pointer;
+        font-weight: bold;
+        box-shadow: 0 3px 7px rgba(0,0,0,0.15);
+    }
+
+    .categoria {
+        display: none;
+        background: #fff;
+        padding: 14px;
+        margin-top: 8px;
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .item {
+        background: #fff;
+        padding: 14px;
+        margin: 12px 0;
+        border-radius: 14px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .nome {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .valor {
+        color: #007aff;
+        font-weight: bold;
+        margin-top: 2px;
+    }
+
+    .controls {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn {
+        width: 45px;
+        height: 45px;
+        border: none;
+        border-radius: 12px;
+        font-size: 26px;
+        font-weight: bold;
+        cursor: pointer;
+        color: white;
+    }
+
+    .menos { background: #ff3b30; }
+    .mais  { background: #34c759; }
+
+    .numero {
+        width: 45px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    #totalArea {
+        margin-top: 20px;
+        padding: 20px;
+        background: #e6fff0;
+        border-radius: 16px;
+        text-align: center;
+        font-size: 22px;
+        font-weight: 900;
+        color: #0b6b1a;
+    }
+
+    #relatorio {
+        width: 100%;
+        background: #5856d6;
+        color: white;
+        padding: 18px;
+        font-size: 20px;
+        margin-top: 25px;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+let precoPorCategoria = {
+    "PALETAS FRUTIVERÃO": 18,
+    "AO LEITE FRUTIVERÃO": 8,
+    "TROPICAL FRUTIVERÃO": 6,
+    "ESPECIAL FRUTVERÃO": 13,
+    "LANÇAMENTOS": null
+};
+
+let precosLancamentos = {
+    "Pistache": 16,
+    "Unicórnio": 10
+};
+
+let categorias = {
+    "PALETAS FRUTIVERÃO": [
+        "Raffaello","Oreo","Ferrero","Kinder Ovo","Kinder Bueno","M&M","Choco Maltine",
+        "Milk Trufado","Babalu","Blue Ice","Sensação","Morango","Maracujá","Açaí",
+        "Iogurte c/ Amora","Menta c/ Chocolate","Paçoca","Capuccino","Banana com Avelã",
+        "Coco c/ Abobora","Coco c/ Doce de Leite","Tapioca","Abacaxi Zero"
+    ],
+    "AO LEITE FRUTIVERÃO": [
+        "Morango","Chocolate","Leite Condensado","Milho-Verde","Açaí c/ Morango",
+        "Coco","Coco Queimado","Abóbora c/ Coco","Amendoim","Abacate","Blue Ice"
+    ],
+    "TROPICAL FRUTIVERÃO": [
+        "Uva","Limão","Maracujá","Manga","Abacaxi","Melancia","Tangerina",
+        "Maçã Verde","Groselha","Tutti Frutti","Pinta Língua"
+    ],
+    "ESPECIAL FRUTVERÃO": [
+        "Skimo morango","Skimo ao leite","Milk trufado","Brigadeiro","Chococo",
+        "Torta de limão","Itu napolitano","Frutblito","Sunday de chocolate","Sundae de Morango"
+    ],
+    "LANÇAMENTOS": ["Pistache","Unicórnio"]
+};
+
+let vendido = {};
+let id = 1;
+
+function toggle(cat) {
+    let el = document.getElementById("cat_" + cat);
+    el.style.display = el.style.display === "block" ? "none" : "block";
+}
+
+function add(id) {
+    vendido[id] = (vendido[id] || 0) + 1;
+    document.getElementById("vend_" + id).innerText = vendido[id];
+    calcularTotal();
+}
+
+function remove(id) {
+    if ((vendido[id] || 0) > 0) vendido[id]--;
+    document.getElementById("vend_" + id).innerText = vendido[id];
+    calcularTotal();
+}
+
+function calcularTotal() {
+    let total = 0;
+    let i = 1;
+
+    for (let cat in categorias) {
+        categorias[cat].forEach(sabor => {
+
+            let preco = precoPorCategoria[cat];
+            if (cat === "LANÇAMENTOS") preco = precosLancamentos[sabor];
+
+            total += (vendido[i] || 0) * preco;
+            i++;
+        });
+    }
+
+    document.getElementById("valorTotal").innerText = total.toFixed(2);
+}
+
+function gerarRelatorio() {
+    let texto = "";
+    let i = 1;
+    let total = 0;
+
+    for (let cat in categorias) {
+        let bloco = "";
+        let totalCat = 0;
+
+        categorias[cat].forEach(sabor => {
+
+            let qtd = vendido[i] || 0;
+            let preco = precoPorCategoria[cat];
+            if (cat === "LANÇAMENTOS") preco = precosLancamentos[sabor];
+
+            totalCat += qtd * preco;
+
+            if (qtd > 0) {
+                bloco += `${qtd} - ${sabor}\n`;
+            }
+
+            i++;
+        });
+
+        if (bloco !== "") {
+            texto += `${cat}\n${bloco}\n`;
+        }
+
+        total += totalCat;
+    }
+
+    texto += `TOTAL: R$ ${total.toFixed(2)}\n`;
+
+    let blob = new Blob([texto], { type: "text/plain" });
+    let url = URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "pedido.txt";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+</script>
 </head>
+
 <body>
-  <main class="container">
-    <header class="header">
-      <h1>Desafio da Visão</h1>
-      <p class="subtitle">Complete 10 níveis e conquiste até <strong>100% de desconto</strong>!</p>
-    </header>
 
-    <section id="menu" class="menu">
-      <button id="startBtn" class="btn primary">Começar</button>
-      <div class="progress-line">
-        <div id="progressFill" class="progress-fill"></div>
-      </div>
-      <p id="levelDisplay" class="level-display">Nível: 0 / 10 — Desconto: 0%</p>
-    </section>
+<h1>Tirar Pedido</h1>
 
-    <section id="game" class="game hidden">
-      <div class="topbar">
-        <div class="timer">
-          <span id="timerText">00:00</span>
-          <div class="timer-bar-outer">
-            <div id="timerBar" class="timer-bar"></div>
-          </div>
-        </div>
-        <div class="controls">
-          <button id="restartLevel" class="btn">Reiniciar Nível</button>
-          <button id="quitBtn" class="btn">Sair</button>
-        </div>
-      </div>
+<div id="conteudo">
+<script>
+for (let cat in categorias) {
 
-      <div id="board" class="board"></div>
-    </section>
+    document.write(`<button class="cat-btn" onclick="toggle('${cat}')">${cat}</button>`);
+    document.write(`<div id="cat_${cat}" class="categoria">`);
 
-    <!-- Modal: level complete / resgatar -->
-    <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
-      <div class="modal-card">
-        <h2 id="modalTitle">Parabéns!</h2>
-        <p id="modalMessage">Você ganhou <span id="modalDiscount">10%</span> de desconto</p>
-        <div class="modal-actions">
-          <a id="whatsappBtn" class="btn whatsapp" target="_blank" rel="noopener">Resgatar no WhatsApp</a>
-          <button id="modalNext" class="btn primary">Próximo Nível</button>
-        </div>
-      </div>
-    </div>
+    categorias[cat].forEach(sabor => {
 
-    <!-- Modal: time over -->
-    <div id="modalTime" class="modal hidden" role="dialog" aria-modal="true">
-      <div class="modal-card">
-        <h2>⏰ Tempo esgotado!</h2>
-        <p>Você não concluiu o nível a tempo.</p>
-        <div class="modal-actions">
-          <button id="retryBtn" class="btn primary">Tentar novamente</button>
-          <a id="whatsappTimeBtn" class="btn whatsapp" target="_blank" rel="noopener">Resgatar no WhatsApp</a>
-        </div>
-      </div>
-    </div>
+        document.write(`
+            <div class="item">
+                <div class="nome">${sabor}</div>
+                <div class="valor">Preço: R$ ${
+                    cat === "LANÇAMENTOS" ? precosLancamentos[sabor] : precoPorCategoria[cat]
+                }</div>
 
-    <!-- Final screen (quando atinge 100%) -->
-    <div id="finalModal" class="modal hidden" role="dialog" aria-modal="true">
-      <div class="modal-card">
-        <h2 id="finalTitle">🎉 Desconto máximo!</h2>
-        <p id="finalMsg">Incrível! Você atingiu 100% de desconto. Entre em contato com a loja e retire seu prêmio.</p>
-        <div class="modal-actions">
-          <a id="finalWhatsapp" class="btn whatsapp" target="_blank" rel="noopener">Chamar no WhatsApp</a>
-          <button id="finalPlayAgain" class="btn">Jogar Novamente</button>
-        </div>
-      </div>
-    </div>
+                <div class="controls">
+                    <button class="btn menos" onclick="remove(${id})">-</button>
+                    <span class="numero" id="vend_${id}">0</span>
+                    <button class="btn mais" onclick="add(${id})">+</button>
+                </div>
+            </div>
+        `);
 
-    <footer class="footer">
-      <small>Ótica Videre — Jogo promocional.</small>
-    </footer>
-  </main>
+        id++;
+    });
 
-  <script src="js/script.js"></script>
+    document.write("</div>");
+}
+</script>
+</div>
+
+<div id="totalArea">
+    TOTAL: R$ <span id="valorTotal">0.00</span>
+</div>
+
+<button id="relatorio" onclick="gerarRelatorio()">GERAR PEDIDO</button>
+
 </body>
 </html>
