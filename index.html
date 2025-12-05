@@ -1,342 +1,230 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Pedido de Sorvetes</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f2f2f7;
-        padding: 12px;
-        max-width: 480px;
-        margin: auto;
-        padding-bottom: 120px; /* espaço para a barra fixa */
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 26px;
-        font-weight: 900;
-        color: #222;
-    }
-
-    /* ---------------------- CATEGORIAS ESTILO iOS ---------------------- */
-    .cat-btn {
-        width: 100%;
-        background: #fff;
-        color: #333;
-        padding: 18px;
-        font-size: 20px;
-        border: none;
-        border-radius: 14px;
-        margin-top: 12px;
-        cursor: pointer;
-        font-weight: bold;
-        text-align: left;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-        transition: 0.2s;
-
-        /* FIXAR NO TOPO */
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-
-    .cat-btn:hover {
-        background: #f7f7f7;
-    }
-
-    .seta {
-        font-size: 20px;
-        transition: transform 0.2s;
-    }
-
-    .categoria {
-        display: none;
-        margin-top: 0;
-        padding-top: 10px;
-        background: #ffffff;
-        padding: 14px;
-        border-radius: 14px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    /* ---------------------- ITENS ---------------------- */
-    .item {
-        background: #fff;
-        padding: 14px;
-        margin: 12px 0;
-        border-radius: 14px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .nome {
-        font-size: 20px;
-        font-weight: bold;
-    }
-
-    .valor {
-        color: #007aff;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-
-    .controls {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-    }
-
-    .btn {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        border: none;
-        cursor: pointer;
-        font-size: 26px;
-        font-weight: bold;
-    }
-
-    .menos { background: #ff3b30; color: white; }
-    .mais  { background: #34c759; color: white; }
-
-    .numero {
-        width: 45px;
-        text-align: center;
-        font-size: 22px;
-        font-weight: bold;
-    }
-
-    /* ---------------------- BARRA FIXA ESTILO iFood ---------------------- */
-    #barra-fixa {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        max-width: 480px;
-        margin: auto;
-        background: #007aff;
-        color: white;
-        padding: 18px;
-        font-size: 20px;
-        font-weight: bold;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-radius: 18px 18px 0 0;
-        box-shadow: 0 -4px 14px rgba(0,0,0,0.25);
-    }
-
-    #total-barra {
-        font-size: 22px;
-        font-weight: 900;
-    }
-
-    #ver-pedido-btn {
-        background: white;
-        color: #007aff;
-        padding: 10px 18px;
-        border-radius: 12px;
-        font-weight: bold;
-        border: none;
-        cursor: pointer;
-        font-size: 18px;
-    }
-
-    /* Esconde o resumo original */
-    #resumo {
-        display: none;
-    }
-
-    /* Botão limpar */
-    #limpar {
-        width: 100%;
-        margin-top: 20px;
-        padding: 14px;
-        background: #ff3b30;
-        color: white;
-        font-size: 18px;
-        border: none;
-        border-radius: 12px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-</style>
-
-<script>
-/* ------------------- PREÇOS ------------------- */
-let precoPorCategoria = {
-    "PALETAS FRUTIVERÃO": 18,
-    "AO LEITE FRUTIVERÃO": 8,
-    "TROPICAL FRUTIVERÃO": 6,
-    "ESPECIAL FRUTVERÃO": 13,
-    "LANÇAMENTOS": null
-};
-
-let precosLancamentos = {
-    "Pistache": 16,
-    "Unicórnio": 10
-};
-
-/* ------------------- CATEGORIAS ------------------- */
-let categorias = {
-    "PALETAS FRUTIVERÃO": [
-        "Raffaello","Oreo","Ferrero","Kinder Ovo","Kinder Bueno","M&M","Choco Maltine",
-        "Milk Trufado","Babalu","Blue Ice","Sensação","Morango","Maracujá","Açaí",
-        "Iogurte c/ Amora","Menta c/ Chocolate","Paçoca","Capuccino","Banana com Avelã",
-        "Coco c/ Abobora","Coco c/ Doce de Leite","Tapioca","Abacaxi Zero"
-    ],
-
-    "AO LEITE FRUTIVERÃO": [
-        "Morango","Chocolate","Leite Condensado","Milho-Verde","Açaí c/ Morango",
-        "Coco","Coco Queimado","Abóbora c/ Coco","Amendoim","Abacate","Blue Ice"
-    ],
-
-    "TROPICAL FRUTIVERÃO": [
-        "Uva","Limão","Maracujá","Manga","Abacaxi","Melancia","Tangerina",
-        "Maçã Verde","Groselha","Tutti Frutti","Pinta Língua"
-    ],
-
-    "ESPECIAL FRUTVERÃO": [
-        "Skimo morango","Skimo ao leite","Milk trufado","Brigadeiro","Chococo",
-        "Torta de limão","Itu napolitano","Frutblito","Sunday de chocolate","Sundae de Morango"
-    ],
-
-    "LANÇAMENTOS": ["Pistache","Unicórnio"]
-};
-
-let id = 1;
-let vendidoSalvo = JSON.parse(localStorage.getItem("vendido")) || {};
-
-/* ------------------- FUNÇÕES ------------------- */
-
-function toggle(cat) {
-    let el = document.getElementById("cat_" + cat);
-    let seta = document.getElementById("seta_" + cat);
-
-    el.style.display = el.style.display === "block" ? "none" : "block";
-    seta.style.transform = el.style.display === "block" ? "rotate(90deg)" : "rotate(0deg)";
-}
-
-function add(id) {
-    let campo = document.getElementById("vend_" + id);
-    campo.innerText = Number(campo.innerText) + 1;
-    vendidoSalvo[id] = Number(campo.innerText);
-    salvar();
-    gerarResumo();
-}
-
-function remove(id) {
-    let campo = document.getElementById("vend_" + id);
-    if (Number(campo.innerText) > 0) campo.innerText--;
-    vendidoSalvo[id] = Number(campo.innerText);
-    salvar();
-    gerarResumo();
-}
-
-function salvar() {
-    localStorage.setItem("vendido", JSON.stringify(vendidoSalvo));
-}
-
-function gerarResumo() {
-    let texto = "";
-    let total = 0;
-    let i = 1;
-
-    for (let cat in categorias) {
-        let blocos = "";
-        categorias[cat].forEach(sabor => {
-            let q = vendidoSalvo[i] || 0;
-            if (q > 0) {
-                blocos += `${q} - ${sabor}\n`;
-                let preco = precoPorCategoria[cat];
-                if (cat === "LANÇAMENTOS") preco = precosLancamentos[sabor];
-                total += q * preco;
-            }
-            i++;
-        });
-
-        if (blocos !== "")
-            texto += `${cat}\n${blocos}\n`;
-    }
-
-    texto += `TOTAL: R$ ${total.toFixed(2)}`;
-
-    document.getElementById("resumo").innerText = texto;
-
-    atualizarBarraFixa(total);
-}
-
-function limparTudo() {
-    localStorage.clear();
-    location.reload();
-}
-
-function atualizarBarraFixa(total) {
-    document.getElementById("total-barra").innerText = "R$ " + total.toFixed(2);
-}
-</script>
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>IPTV Manager — Monitor e Reparo</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding:12px; background:#f6f6f8; color:#222; }
+    #app { max-width:900px; margin:0 auto; }
+    header { display:flex; gap:12px; align-items:center; }
+    input, button, select { padding:8px; border-radius:6px; border:1px solid #ddd; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; background:#fff; }
+    th,td { padding:8px; border-bottom:1px solid #eee; text-align:left; }
+    tr.down { background: #ffecec; }
+    .small { font-size:12px; color:#666; }
+    .log { white-space:pre-wrap; font-family:monospace; background:#111; color:#efe; padding:8px; border-radius:6px; max-height:200px; overflow:auto; }
+  </style>
 </head>
 <body>
+  <div id="app">
+    <header>
+      <h2>IPTV Manager</h2>
+      <div class="small">Monitora clientes e troca IPTV quando cair</div>
+    </header>
 
-<h1>Tirar Pedido</h1>
+    <section style="margin-top:10px;">
+      <label>Base URL da API: <input id="baseUrl" value="https://netplay.sigma.vin/api" style="width:350px"></label>
+      <label style="margin-left:8px">Token (recomendado): <input id="apiToken" placeholder="se tiver, cole aqui" style="width:250px"></label>
+      <button id="btnLogin">Testar / Salvar</button>
+    </section>
 
-<div id="conteudo">
+    <section style="margin-top:10px;">
+      <label>Intervalo polling (seg): <input id="pollSec" value="15" style="width:70px"></label>
+      <label style="margin-left:8px">Filtro status considerado "caído": <input id="downStatus" value="offline" style="width:120px"></label>
+      <button id="btnStart">Iniciar Monitor</button>
+      <button id="btnStop" disabled>Parar</button>
+    </section>
 
-<script>
-for (let cat in categorias) {
-    document.write(`
-        <button class="cat-btn" onclick="toggle('${cat}')">
-            ${cat}
-            <span class="seta" id="seta_${cat}">▶</span>
-        </button>
-    `);
+    <section style="margin-top:12px;">
+      <table id="customersTable" aria-live="polite">
+        <thead><tr><th>ID</th><th>Nome</th><th>IPTV</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
 
-    document.write(`<div id="cat_${cat}" class="categoria">`);
+    <section style="margin-top:12px;">
+      <h4>Logs</h4>
+      <div id="log" class="log"></div>
+    </section>
+  </div>
 
-    categorias[cat].forEach(sabor => {
-        let v = vendidoSalvo[id] || 0;
+  <script>
+  // --- CONFIG HELP ---
+  // Este template usa endpoints fictícios:
+  // GET  {BASE_URL}/customers            -> lista clientes (paginação opcional)
+  // GET  {BASE_URL}/customers/:id/status -> status do cliente
+  // POST {BASE_URL}/customers/:id/iptv   -> altera configuracao iptv (body: {profile: "..."} ou o que sua API pedir)
+  //
+  // Substitua conforme a API real do seu painel.
 
-        document.write(`
-            <div class="item">
-                <div class="nome">${sabor}</div>
-                <div class="valor">Preço: R$ ${
-                    cat === "LANÇAMENTOS" ? precosLancamentos[sabor] : precoPorCategoria[cat]
-                }</div>
+  const el = id => document.getElementById(id);
+  const logEl = el('log');
+  const tableBody = document.querySelector('#customersTable tbody');
 
-                <div class="controls">
-                    <button class="btn menos" onclick="remove(${id})">-</button>
-                    <span class="numero" id="vend_${id}">${v}</span>
-                    <button class="btn mais" onclick="add(${id})">+</button>
-                </div>
-            </div>
-        `);
+  function log(...args){
+    const now = new Date().toLocaleString();
+    logEl.textContent = `[${now}] ` + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : a)).join(' ') + '\n' + logEl.textContent;
+  }
 
-        id++;
+  function getAuthHeaders(){
+    const token = el('apiToken').value.trim();
+    if(token) return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+    // fallback: basic auth from prompt (not stored)
+    return { 'Content-Type': 'application/json' };
+  }
+
+  async function fetchCustomers(){
+    const base = el('baseUrl').value.trim();
+    const url = base + '/customers';
+    log('Buscando clientes em', url);
+    try {
+      const res = await fetch(url, { headers: getAuthHeaders() });
+      if(!res.ok) throw new Error('Erro ' + res.status);
+      return await res.json(); // espere array de clientes
+    } catch(err){
+      log('Erro fetchCustomers:', err.message);
+      return [];
+    }
+  }
+
+  async function fetchCustomerStatus(id){
+    const base = el('baseUrl').value.trim();
+    const url = base + '/customers/' + encodeURIComponent(id) + '/status';
+    try {
+      const res = await fetch(url, { headers: getAuthHeaders() });
+      if(!res.ok) throw new Error('Status fetch erro ' + res.status);
+      return await res.json(); // formato: {status: 'online'|'offline', lastSeen: '...'}
+    } catch(err){
+      log('Erro fetchCustomerStatus', id, err.message);
+      return { status: 'unknown' };
+    }
+  }
+
+  async function changeIptv(id, newProfile){
+    const base = el('baseUrl').value.trim();
+    const url = base + '/customers/' + encodeURIComponent(id) + '/iptv';
+    log('Alterando IPTV do', id, '->', newProfile);
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ profile: newProfile })
+      });
+      if(!res.ok) {
+        const txt = await res.text().catch(()=>'');
+        throw new Error('Erro ' + res.status + ' ' + txt);
+      }
+      const data = await res.json();
+      log('Alterado', id, data);
+      return data;
+    } catch(err){
+      log('Erro changeIptv', id, err.message);
+      throw err;
+    }
+  }
+
+  // UI helpers
+  function renderCustomers(list){
+    tableBody.innerHTML = '';
+    list.forEach(c => {
+      const tr = document.createElement('tr');
+      tr.className = (c.status === el('downStatus').value.trim() ? 'down' : '');
+      tr.innerHTML = `
+        <td>${c.id}</td>
+        <td>${c.name || c.customer_name || ''}</td>
+        <td>${c.iptv_profile || c.profile || ''}</td>
+        <td>${c.status || 'unknown'}</td>
+        <td>
+          <select data-id="${c.id}" class="profileSelect">
+            <option value="">-- escolher --</option>
+            <option value="profileA">profileA</option>
+            <option value="profileB">profileB</option>
+            <option value="reconnect">reconnect</option>
+          </select>
+          <button data-id="${c.id}" class="btnChange">Aplicar</button>
+        </td>
+      `;
+      tableBody.appendChild(tr);
     });
+  }
 
-    document.write("</div>");
-}
-</script>
+  // Manual change handler
+  tableBody.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('.btnChange');
+    if(!btn) return;
+    const id = btn.dataset.id;
+    const sel = tableBody.querySelector(`select[data-id="${id}"]`);
+    const profile = sel.value;
+    if(!profile) return alert('Escolha um perfil');
+    try {
+      await changeIptv(id, profile);
+      alert('Solicitação enviada com sucesso');
+    } catch(e){ alert('Erro: ' + e.message); }
+  });
 
-</div>
+  // Main monitoring loop
+  let monitorInterval = null;
+  let customersCache = [];
 
-<div id="resumo">Nenhum item selecionado.</div>
+  async function tickMonitor(){
+    // 1) obter lista de clientes
+    const all = await fetchCustomers();
+    // assume formato array [{id, name, iptv_profile, status}]
+    customersCache = all;
+    // 2) opcional: atualizar status individual (se API separar)
+    for(const c of customersCache){
+      const s = await fetchCustomerStatus(c.id).catch(()=>({status:'unknown'}));
+      c.status = s.status || c.status || 'unknown';
+    }
+    renderCustomers(customersCache);
 
-<button id="limpar" onclick="limparTudo()">LIMPAR</button>
+    // 3) detectar "caídos" e tentar ação automática
+    const downLabel = el('downStatus').value.trim();
+    for(const c of customersCache){
+      if(c.status === downLabel){
+        log('Detectado CAÍDO:', c.id, c.name);
+        // decidir ação automática: trocar para profileB -> você pode ajustar a lógica
+        try {
+          // Exemplo: alterna entre dois perfis
+          const newProfile = (c.iptv_profile === 'profileA') ? 'profileB' : 'profileA';
+          await changeIptv(c.id, newProfile);
+          log('Auto-troca feita para', c.id, newProfile);
+        } catch(err){
+          log('Falha ao auto-trocar', c.id, err.message);
+        }
+      }
+    }
+  }
 
-<div id="barra-fixa">
-    <span id="total-barra">R$ 0,00</span>
-    <button id="ver-pedido-btn" onclick="alert(resumo.innerText)">Ver pedido</button>
-</div>
+  // Controls
+  el('btnStart').addEventListener('click', async () => {
+    const sec = parseInt(el('pollSec').value) || 15;
+    el('btnStart').disabled = true; el('btnStop').disabled = false;
+    await tickMonitor(); // primeira execução imediata
+    monitorInterval = setInterval(tickMonitor, sec*1000);
+    log('Monitor iniciado (intervalo', sec, 's)');
+  });
 
+  el('btnStop').addEventListener('click', () => {
+    if(monitorInterval) clearInterval(monitorInterval);
+    monitorInterval = null;
+    el('btnStart').disabled = false; el('btnStop').disabled = true;
+    log('Monitor parado');
+  });
+
+  // Testar / salvar: apenas testa a conexão
+  el('btnLogin').addEventListener('click', async () => {
+    const base = el('baseUrl').value.trim();
+    try {
+      const res = await fetch(base + '/ping', { headers: getAuthHeaders() });
+      if(res.ok) { alert('Conexão OK'); log('Ping ok'); }
+      else { alert('Ping falhou: ' + res.status); log('Ping falhou', res.status); }
+    } catch(e){ alert('Erro conexão: ' + e.message); log('Erro ping', e.message); }
+  });
+
+  // inicializa
+  log('IPTV Manager pronto. Lembre de ajustar endpoints e headers conforme sua API.');
+  </script>
 </body>
 </html>
