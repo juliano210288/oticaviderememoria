@@ -7,97 +7,123 @@
 
 <style>
     body {
-        font-family: Arial, sans-serif;
-        background: #f2f2f7;
-        padding: 12px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+        background: #f2f3f7;
+        padding: 16px;
         max-width: 480px;
         margin: auto;
-        padding-bottom: 120px;
+        padding-bottom: 140px;
     }
 
     h1 {
         text-align: center;
+        font-size: 28px;
+        font-weight: 800;
         margin-bottom: 20px;
-        font-size: 26px;
-        font-weight: 900;
-        color: #222;
+        color: #1a1a1a;
     }
 
+    /* --- Botões de categoria estilo iOS --- */
     .cat-btn {
         width: 100%;
-        background: #fff;
-        color: #333;
+        background: #ffffff;
         padding: 18px;
-        font-size: 20px;
+        font-size: 19px;
         border: none;
-        border-radius: 14px;
-        margin-top: 12px;
+        border-radius: 18px;
+        margin-top: 16px;
         cursor: pointer;
-        font-weight: bold;
-        text-align: left;
+        font-weight: 600;
+        color: #333;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.10);
         transition: 0.2s;
     }
 
-    .cat-btn:hover { background: #f7f7f7; }
+    .cat-btn:active {
+        transform: scale(0.98);
+        background: #f8f8f8;
+    }
 
     .seta {
         font-size: 20px;
         transition: transform 0.2s;
+        color: #007aff;
     }
 
+    /* --- Área oculta da categoria --- */
     .categoria {
         display: none;
-        margin-top: 0;
-        padding-top: 10px;
         background: #ffffff;
-        padding: 14px;
-        border-radius: 14px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        padding: 16px;
+        border-radius: 18px;
+        margin-top: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.10);
     }
 
+    /* --- Item --- */
     .item {
-        background: #fff;
-        padding: 14px;
-        margin: 12px 0;
-        border-radius: 14px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        padding: 14px 0;
+        border-bottom: 1px solid #ececec;
     }
 
-    .nome { font-size: 20px; font-weight: bold; }
-    .valor { color: #007aff; font-weight: bold; margin-bottom: 8px; }
+    .item:last-child {
+        border-bottom: none;
+    }
 
+    .nome {
+        font-size: 18px;
+        font-weight: 600;
+        color: #222;
+    }
+
+    .valor {
+        font-size: 16px;
+        color: #007aff;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+
+    /* --- Controles (+ -) --- */
     .controls {
         display: flex;
         align-items: center;
-        gap: 8px;
         margin-top: 10px;
+        gap: 10px;
     }
 
     .btn {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
         border: none;
-        cursor: pointer;
         font-size: 26px;
-        font-weight: bold;
+        font-weight: 700;
+        cursor: pointer;
         touch-action: manipulation;
     }
 
-    .menos { background: #ff3b30; color: white; }
-    .mais  { background: #34c759; color: white; }
-
-    .numero {
-        width: 45px;
-        text-align: center;
-        font-size: 22px;
-        font-weight: bold;
+    .menos {
+        background: #ff3b30;
+        color: white;
     }
 
+    .mais {
+        background: #34c759;
+        color: white;
+    }
+
+    .numero {
+        width: 42px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    /* --- Barra fixa --- */
     #barra-fixa {
         position: fixed;
         bottom: 0;
@@ -106,34 +132,27 @@
         max-width: 480px;
         margin: auto;
         background: #007aff;
-        color: white;
         padding: 18px;
+        color: white;
         font-size: 20px;
-        font-weight: bold;
+        font-weight: 700;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-radius: 18px 18px 0 0;
-        box-shadow: 0 -4px 14px rgba(0,0,0,0.25);
-    }
-
-    #total-barra {
-        font-size: 22px;
-        font-weight: 900;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -6px 20px rgba(0,0,0,0.25);
     }
 
     #ver-pedido-btn {
         background: white;
         color: #007aff;
         padding: 10px 18px;
-        border-radius: 12px;
-        font-weight: bold;
+        border-radius: 14px;
+        font-size: 17px;
+        font-weight: 700;
         border: none;
         cursor: pointer;
-        font-size: 18px;
     }
-
-    #resumo { display: none; }
 
     #limpar {
         width: 100%;
@@ -143,15 +162,20 @@
         color: white;
         font-size: 18px;
         border: none;
-        border-radius: 12px;
+        border-radius: 14px;
         font-weight: bold;
         cursor: pointer;
+    }
+
+    #resumo {
+        display: none;
+        white-space: pre-wrap;
     }
 </style>
 </head>
 <body>
 
-<h1>Tirar Pedido</h1>
+<h1>Pedido de Sorvetes</h1>
 
 <div id="conteudo"></div>
 
@@ -164,7 +188,6 @@
     <button id="ver-pedido-btn" onclick="alert(resumo.innerText)">Ver pedido</button>
 </div>
 
-
 <script>
 /* ------------------- PREÇOS ------------------- */
 const precoPorCategoria = {
@@ -175,10 +198,7 @@ const precoPorCategoria = {
     "LANÇAMENTOS": null
 };
 
-const precosLancamentos = {
-    "Pistache": 16,
-    "Unicórnio": 10
-};
+const precosLancamentos = { "Pistache": 16, "Unicórnio": 10 };
 
 /* ------------------- CATEGORIAS ------------------- */
 const categorias = {
@@ -188,22 +208,18 @@ const categorias = {
         "Iogurte c/ Amora","Menta c/ Chocolate","Paçoca","Capuccino","Banana com Avelã",
         "Coco c/ Abobora","Coco c/ Doce de Leite","Tapioca","Abacaxi Zero"
     ],
-
     "AO LEITE FRUTIVERÃO": [
         "Morango","Chocolate","Leite Condensado","Milho-Verde","Açaí c/ Morango",
         "Coco","Coco Queimado","Abóbora c/ Coco","Amendoim","Abacate","Blue Ice"
     ],
-
     "TROPICAL FRUTIVERÃO": [
         "Uva","Limão","Maracujá","Manga","Abacaxi","Melancia","Tangerina",
         "Maçã Verde","Groselha","Tutti Frutti","Pinta Língua"
     ],
-
     "ESPECIAL FRUTVERÃO": [
         "Skimo morango","Skimo ao leite","Milk trufado","Brigadeiro","Chococo",
         "Torta de limão","Itu napolitano","Frutblito","Sunday de chocolate","Sundae de Morango"
     ],
-
     "LANÇAMENTOS": ["Pistache","Unicórnio"]
 };
 
