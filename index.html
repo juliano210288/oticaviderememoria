@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Pedido de Sorvetes</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
     body {
@@ -12,7 +12,7 @@
         padding: 12px;
         max-width: 480px;
         margin: auto;
-        padding-bottom: 120px; /* espaço para a barra fixa */
+        padding-bottom: 120px;
     }
 
     h1 {
@@ -23,7 +23,6 @@
         color: #222;
     }
 
-    /* ---------------------- CATEGORIAS ESTILO iOS ---------------------- */
     .cat-btn {
         width: 100%;
         background: #fff;
@@ -41,16 +40,12 @@
         align-items: center;
         box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         transition: 0.2s;
-
-        /* FIXAR NO TOPO */
         position: sticky;
         top: 0;
         z-index: 10;
     }
 
-    .cat-btn:hover {
-        background: #f7f7f7;
-    }
+    .cat-btn:hover { background: #f7f7f7; }
 
     .seta {
         font-size: 20px;
@@ -67,7 +62,6 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 
-    /* ---------------------- ITENS ---------------------- */
     .item {
         background: #fff;
         padding: 14px;
@@ -76,16 +70,8 @@
         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    .nome {
-        font-size: 20px;
-        font-weight: bold;
-    }
-
-    .valor {
-        color: #007aff;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
+    .nome { font-size: 20px; font-weight: bold; }
+    .valor { color: #007aff; font-weight: bold; margin-bottom: 8px; }
 
     .controls {
         display: flex;
@@ -114,7 +100,6 @@
         font-weight: bold;
     }
 
-    /* ---------------------- BARRA FIXA ESTILO iFood ---------------------- */
     #barra-fixa {
         position: fixed;
         bottom: 0;
@@ -150,12 +135,10 @@
         font-size: 18px;
     }
 
-    /* Esconde o resumo original */
     #resumo {
         display: none;
     }
 
-    /* Botão limpar */
     #limpar {
         width: 100%;
         margin-top: 20px;
@@ -169,10 +152,26 @@
         cursor: pointer;
     }
 </style>
+</head>
+<body>
+
+<h1>Tirar Pedido</h1>
+
+<div id="conteudo"></div>
+
+<div id="resumo">Nenhum item selecionado.</div>
+
+<button id="limpar" onclick="limparTudo()">LIMPAR</button>
+
+<div id="barra-fixa">
+    <span id="total-barra">R$ 0,00</span>
+    <button id="ver-pedido-btn" onclick="alert(resumo.innerText)">Ver pedido</button>
+</div>
+
 
 <script>
 /* ------------------- PREÇOS ------------------- */
-let precoPorCategoria = {
+const precoPorCategoria = {
     "PALETAS FRUTIVERÃO": 18,
     "AO LEITE FRUTIVERÃO": 8,
     "TROPICAL FRUTIVERÃO": 6,
@@ -180,13 +179,13 @@ let precoPorCategoria = {
     "LANÇAMENTOS": null
 };
 
-let precosLancamentos = {
+const precosLancamentos = {
     "Pistache": 16,
     "Unicórnio": 10
 };
 
 /* ------------------- CATEGORIAS ------------------- */
-let categorias = {
+const categorias = {
     "PALETAS FRUTIVERÃO": [
         "Raffaello","Oreo","Ferrero","Kinder Ovo","Kinder Bueno","M&M","Choco Maltine",
         "Milk Trufado","Babalu","Blue Ice","Sensação","Morango","Maracujá","Açaí",
@@ -212,21 +211,67 @@ let categorias = {
     "LANÇAMENTOS": ["Pistache","Unicórnio"]
 };
 
-let id = 1;
 let vendidoSalvo = JSON.parse(localStorage.getItem("vendido")) || {};
+let idGlobal = 1;
+
+/* ------------------- MONTAR INTERFACE ------------------- */
+function montarInterface() {
+    const conteudo = document.getElementById("conteudo");
+
+    for (let cat in categorias) {
+        const bt = document.createElement("button");
+        bt.className = "cat-btn";
+        bt.innerHTML = `${cat} <span class="seta" id="seta_${cat}">▶</span>`;
+        bt.onclick = () => toggle(cat);
+        conteudo.appendChild(bt);
+
+        const bloco = document.createElement("div");
+        bloco.id = "cat_" + cat;
+        bloco.className = "categoria";
+
+        categorias[cat].forEach(sabor => {
+            const item = document.createElement("div");
+            item.className = "item";
+
+            const preco = cat === "LANÇAMENTOS"
+                ? precosLancamentos[sabor]
+                : precoPorCategoria[cat];
+
+            const v = vendidoSalvo[idGlobal] || 0;
+
+            item.innerHTML = `
+                <div class="nome">${sabor}</div>
+                <div class="valor">Preço: R$ ${preco}</div>
+                <div class="controls">
+                    <button class="btn menos" onclick="remove(${idGlobal})">-</button>
+                    <span class="numero" id="vend_${idGlobal}">${v}</span>
+                    <button class="btn mais" onclick="add(${idGlobal})">+</button>
+                </div>
+            `;
+
+            bloco.appendChild(item);
+            idGlobal++;
+        });
+
+        conteudo.appendChild(bloco);
+    }
+}
+
+montarInterface();
+gerarResumo();
 
 /* ------------------- FUNÇÕES ------------------- */
-
 function toggle(cat) {
-    let el = document.getElementById("cat_" + cat);
-    let seta = document.getElementById("seta_" + cat);
+    const el = document.getElementById("cat_" + cat);
+    const seta = document.getElementById("seta_" + cat);
 
-    el.style.display = el.style.display === "block" ? "none" : "block";
-    seta.style.transform = el.style.display === "block" ? "rotate(90deg)" : "rotate(0deg)";
+    const aberto = el.style.display === "block";
+    el.style.display = aberto ? "none" : "block";
+    seta.style.transform = aberto ? "rotate(0deg)" : "rotate(90deg)";
 }
 
 function add(id) {
-    let campo = document.getElementById("vend_" + id);
+    const campo = document.getElementById("vend_" + id);
     campo.innerText = Number(campo.innerText) + 1;
     vendidoSalvo[id] = Number(campo.innerText);
     salvar();
@@ -234,7 +279,7 @@ function add(id) {
 }
 
 function remove(id) {
-    let campo = document.getElementById("vend_" + id);
+    const campo = document.getElementById("vend_" + id);
     if (Number(campo.innerText) > 0) campo.innerText--;
     vendidoSalvo[id] = Number(campo.innerText);
     salvar();
@@ -252,91 +297,39 @@ function gerarResumo() {
 
     for (let cat in categorias) {
         let blocos = "";
+
         categorias[cat].forEach(sabor => {
-            let q = vendidoSalvo[i] || 0;
+            const q = vendidoSalvo[i] || 0;
             if (q > 0) {
                 blocos += `${q} - ${sabor}\n`;
-                let preco = precoPorCategoria[cat];
-                if (cat === "LANÇAMENTOS") preco = precosLancamentos[sabor];
+
+                const preco = cat === "LANÇAMENTOS"
+                    ? precosLancamentos[sabor]
+                    : precoPorCategoria[cat];
+
                 total += q * preco;
             }
             i++;
         });
 
-        if (blocos !== "")
-            texto += `${cat}\n${blocos}\n`;
+        if (blocos !== "") texto += `${cat}\n${blocos}\n`;
     }
 
     texto += `TOTAL: R$ ${total.toFixed(2)}`;
-
     document.getElementById("resumo").innerText = texto;
 
     atualizarBarraFixa(total);
+}
+
+function atualizarBarraFixa(total) {
+    document.getElementById("total-barra").innerText = "R$ " + total.toFixed(2);
 }
 
 function limparTudo() {
     localStorage.clear();
     location.reload();
 }
-
-function atualizarBarraFixa(total) {
-    document.getElementById("total-barra").innerText = "R$ " + total.toFixed(2);
-}
 </script>
-
-</head>
-<body>
-
-<h1>Tirar Pedido</h1>
-
-<div id="conteudo">
-
-<script>
-for (let cat in categorias) {
-    document.write(`
-        <button class="cat-btn" onclick="toggle('${cat}')">
-            ${cat}
-            <span class="seta" id="seta_${cat}">▶</span>
-        </button>
-    `);
-
-    document.write(`<div id="cat_${cat}" class="categoria">`);
-
-    categorias[cat].forEach(sabor => {
-        let v = vendidoSalvo[id] || 0;
-
-        document.write(`
-            <div class="item">
-                <div class="nome">${sabor}</div>
-                <div class="valor">Preço: R$ ${
-                    cat === "LANÇAMENTOS" ? precosLancamentos[sabor] : precoPorCategoria[cat]
-                }</div>
-
-                <div class="controls">
-                    <button class="btn menos" onclick="remove(${id})">-</button>
-                    <span class="numero" id="vend_${id}">${v}</span>
-                    <button class="btn mais" onclick="add(${id})">+</button>
-                </div>
-            </div>
-        `);
-
-        id++;
-    });
-
-    document.write("</div>");
-}
-</script>
-
-</div>
-
-<div id="resumo">Nenhum item selecionado.</div>
-
-<button id="limpar" onclick="limparTudo()">LIMPAR</button>
-
-<div id="barra-fixa">
-    <span id="total-barra">R$ 0,00</span>
-    <button id="ver-pedido-btn" onclick="alert(resumo.innerText)">Ver pedido</button>
-</div>
 
 </body>
 </html>
