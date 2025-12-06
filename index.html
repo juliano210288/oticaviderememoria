@@ -2,344 +2,164 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Pedido de Sorvetes</title>
+<title>Controle de Sorvetes</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
     body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-        background: #f2f3f7;
+        margin: 0;
         padding: 16px;
-        max-width: 480px;
-        margin: auto;
-        padding-bottom: 140px;
-    }
-
-    h1 {
-        text-align: center;
-        font-size: 28px;
-        font-weight: 800;
-        margin-bottom: 20px;
-        color: #1a1a1a;
-    }
-
-    /* --- Botões de categoria estilo iOS --- */
-    .cat-btn {
-        width: 100%;
-        background: #ffffff;
-        padding: 18px;
-        font-size: 19px;
-        border: none;
-        border-radius: 18px;
-        margin-top: 16px;
-        cursor: pointer;
-        font-weight: 600;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro", Arial;
+        background: #f2f2f7;
         color: #333;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.10);
-        transition: 0.2s;
     }
 
-    .cat-btn:active {
-        transform: scale(0.98);
-        background: #f8f8f8;
-    }
-
-    .seta {
+    h2 {
+        margin: 18px 0 10px;
         font-size: 20px;
-        transition: transform 0.2s;
-        color: #007aff;
-    }
-
-    /* --- Área oculta da categoria --- */
-    .categoria {
-        display: none;
-        background: #ffffff;
-        padding: 16px;
-        border-radius: 18px;
-        margin-top: 10px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.10);
-    }
-
-    /* --- Item --- */
-    .item {
-        padding: 14px 0;
-        border-bottom: 1px solid #ececec;
-    }
-
-    .item:last-child {
-        border-bottom: none;
-    }
-
-    .nome {
-        font-size: 18px;
-        font-weight: 600;
-        color: #222;
-    }
-
-    .valor {
-        font-size: 16px;
-        color: #007aff;
         font-weight: 700;
-        margin-top: 4px;
+        color: #1c1c1e;
     }
 
-    /* --- Controles (+ -) --- */
-    .controls {
+    .categoria {
+        margin-top: 22px;
+    }
+
+    .item {
+        background: #fff;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin: 0; /* encostado */
         display: flex;
         align-items: center;
-        margin-top: 10px;
-        gap: 10px;
+        justify-content: space-between;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .info {
+        display: flex;
+        flex-direction: column;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .preco {
+        font-size: 14px;
+        font-weight: 500;
+        color: #6e6e73;
+    }
+
+    .controles {
+        display: flex;
+        gap: 8px;
+        align-items: center;
     }
 
     .btn {
-        width: 42px;
-        height: 42px;
-        border-radius: 14px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
         border: none;
-        font-size: 26px;
-        font-weight: 700;
-        cursor: pointer;
-        touch-action: manipulation;
-    }
-
-    .menos {
-        background: #ff3b30;
-        color: white;
-    }
-
-    .mais {
-        background: #34c759;
-        color: white;
-    }
-
-    .numero {
-        width: 42px;
-        text-align: center;
+        background: #e5e5ea;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         font-size: 20px;
-        font-weight: 700;
-        color: #333;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.12s;
     }
 
-    /* --- Barra fixa --- */
-    #barra-fixa {
+    .btn:active {
+        transform: scale(0.92);
+    }
+
+    .qtde {
+        min-width: 20px;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    #total {
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        max-width: 480px;
-        margin: auto;
-        background: #007aff;
-        padding: 18px;
-        color: white;
-        font-size: 20px;
-        font-weight: 700;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-radius: 20px 20px 0 0;
-        box-shadow: 0 -6px 20px rgba(0,0,0,0.25);
-    }
-
-    #ver-pedido-btn {
-        background: white;
-        color: #007aff;
-        padding: 10px 18px;
-        border-radius: 14px;
-        font-size: 17px;
-        font-weight: 700;
-        border: none;
-        cursor: pointer;
-    }
-
-    #limpar {
-        width: 100%;
-        margin-top: 20px;
-        padding: 14px;
-        background: #ff3b30;
-        color: white;
+        background: #fff;
+        box-shadow: 0 -3px 12px rgba(0,0,0,0.1);
+        padding: 16px;
         font-size: 18px;
-        border: none;
-        border-radius: 14px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    #resumo {
-        display: none;
-        white-space: pre-wrap;
+        font-weight: 700;
+        text-align: center;
+        z-index: 999;
     }
 </style>
 </head>
+
 <body>
 
-<h1>Pedido de Sorvetes</h1>
-
-<div id="conteudo"></div>
-
-<div id="resumo">Nenhum item selecionado.</div>
-
-<button id="limpar" onclick="limparTudo()">LIMPAR</button>
-
-<div id="barra-fixa">
-    <span id="total-barra">R$ 0,00</span>
-    <button id="ver-pedido-btn" onclick="alert(resumo.innerText)">Ver pedido</button>
+<h2>Paletas</h2>
+<div class="item" data-valor="8.00">
+    <div class="info">
+        Morango
+        <span class="preco">R$ 8,00</span>
+    </div>
+    <div class="controles">
+        <button class="btn" onclick="alterar(this, -1)">–</button>
+        <span class="qtde">0</span>
+        <button class="btn" onclick="alterar(this, 1)">+</button>
+    </div>
 </div>
 
+<div class="item" data-valor="8.00">
+    <div class="info">
+        Chocolate
+        <span class="preco">R$ 8,00</span>
+    </div>
+    <div class="controles">
+        <button class="btn" onclick="alterar(this, -1)">–</button>
+        <span class="qtde">0</span>
+        <button class="btn" onclick="alterar(this, 1)">+</button>
+    </div>
+</div>
+
+<div class="item" data-valor="6.00">
+    <div class="info">
+        Uva
+        <span class="preco">R$ 6,00</span>
+    </div>
+    <div class="controles">
+        <button class="btn" onclick="alterar(this, -1)">–</button>
+        <span class="qtde">0</span>
+        <button class="btn" onclick="alterar(this, 1)">+</button>
+    </div>
+</div>
+
+<div id="total">Total: R$ 0,00</div>
+
 <script>
-/* ------------------- PREÇOS ------------------- */
-const precoPorCategoria = {
-    "PALETAS FRUTIVERÃO": 18,
-    "AO LEITE FRUTIVERÃO": 8,
-    "TROPICAL FRUTIVERÃO": 6,
-    "ESPECIAL FRUTVERÃO": 13,
-    "LANÇAMENTOS": null
-};
+function alterar(btn, val) {
+    const item = btn.closest(".item");
+    const qtdeSpan = item.querySelector(".qtde");
+    let qtde = parseInt(qtdeSpan.innerText);
 
-const precosLancamentos = { "Pistache": 16, "Unicórnio": 10 };
+    qtde = Math.max(0, qtde + val);
+    qtdeSpan.innerText = qtde;
 
-/* ------------------- CATEGORIAS ------------------- */
-const categorias = {
-    "PALETAS FRUTIVERÃO": [
-        "Raffaello","Oreo","Ferrero","Kinder Ovo","Kinder Bueno","M&M","Choco Maltine",
-        "Milk Trufado","Babalu","Blue Ice","Sensação","Morango","Maracujá","Açaí",
-        "Iogurte c/ Amora","Menta c/ Chocolate","Paçoca","Capuccino","Banana com Avelã",
-        "Coco c/ Abobora","Coco c/ Doce de Leite","Tapioca","Abacaxi Zero"
-    ],
-    "AO LEITE FRUTIVERÃO": [
-        "Morango","Chocolate","Leite Condensado","Milho-Verde","Açaí c/ Morango",
-        "Coco","Coco Queimado","Abóbora c/ Coco","Amendoim","Abacate","Blue Ice"
-    ],
-    "TROPICAL FRUTIVERÃO": [
-        "Uva","Limão","Maracujá","Manga","Abacaxi","Melancia","Tangerina",
-        "Maçã Verde","Groselha","Tutti Frutti","Pinta Língua"
-    ],
-    "ESPECIAL FRUTVERÃO": [
-        "Skimo morango","Skimo ao leite","Milk trufado","Brigadeiro","Chococo",
-        "Torta de limão","Itu napolitano","Frutblito","Sunday de chocolate","Sundae de Morango"
-    ],
-    "LANÇAMENTOS": ["Pistache","Unicórnio"]
-};
-
-let vendidoSalvo = JSON.parse(localStorage.getItem("vendido")) || {};
-let idGlobal = 1;
-
-/* ------------------- MONTAR INTERFACE ------------------- */
-function montarInterface() {
-    const conteudo = document.getElementById("conteudo");
-
-    for (let cat in categorias) {
-        const bt = document.createElement("button");
-        bt.className = "cat-btn";
-        bt.innerHTML = `${cat} <span class="seta" id="seta_${cat}">▶</span>`;
-        bt.onclick = () => toggle(cat);
-        conteudo.appendChild(bt);
-
-        const bloco = document.createElement("div");
-        bloco.id = "cat_" + cat;
-        bloco.className = "categoria";
-
-        categorias[cat].forEach(sabor => {
-            const item = document.createElement("div");
-            item.className = "item";
-
-            const preco = cat === "LANÇAMENTOS"
-                ? precosLancamentos[sabor]
-                : precoPorCategoria[cat];
-
-            const v = vendidoSalvo[idGlobal] || 0;
-
-            item.innerHTML = `
-                <div class="nome">${sabor}</div>
-                <div class="valor">Preço: R$ ${preco}</div>
-                <div class="controls">
-                    <button class="btn menos" onclick="remove(${idGlobal})">-</button>
-                    <span class="numero" id="vend_${idGlobal}">${v}</span>
-                    <button class="btn mais" onclick="add(${idGlobal})">+</button>
-                </div>
-            `;
-
-            bloco.appendChild(item);
-            idGlobal++;
-        });
-
-        conteudo.appendChild(bloco);
-    }
+    atualizarTotal();
 }
 
-montarInterface();
-gerarResumo();
-
-/* ------------------- FUNÇÕES ------------------- */
-function toggle(cat) {
-    const el = document.getElementById("cat_" + cat);
-    const seta = document.getElementById("seta_" + cat);
-
-    const aberto = el.style.display === "block";
-    el.style.display = aberto ? "none" : "block";
-    seta.style.transform = aberto ? "rotate(0deg)" : "rotate(90deg)";
-}
-
-function add(id) {
-    const campo = document.getElementById("vend_" + id);
-    campo.innerText = Number(campo.innerText) + 1;
-    vendidoSalvo[id] = Number(campo.innerText);
-    salvar();
-    gerarResumo();
-}
-
-function remove(id) {
-    const campo = document.getElementById("vend_" + id);
-    if (Number(campo.innerText) > 0) campo.innerText--;
-    vendidoSalvo[id] = Number(campo.innerText);
-    salvar();
-    gerarResumo();
-}
-
-function salvar() {
-    localStorage.setItem("vendido", JSON.stringify(vendidoSalvo));
-}
-
-function gerarResumo() {
-    let texto = "";
+function atualizarTotal() {
     let total = 0;
-    let i = 1;
+    document.querySelectorAll(".item").forEach(item => {
+        const qtde = parseInt(item.querySelector(".qtde").innerText);
+        const valor = parseFloat(item.getAttribute("data-valor"));
+        total += qtde * valor;
+    });
 
-    for (let cat in categorias) {
-        let blocos = "";
-
-        categorias[cat].forEach(sabor => {
-            const q = vendidoSalvo[i] || 0;
-            if (q > 0) {
-                blocos += `${q} - ${sabor}\n`;
-
-                const preco = cat === "LANÇAMENTOS"
-                    ? precosLancamentos[sabor]
-                    : precoPorCategoria[cat];
-
-                total += q * preco;
-            }
-            i++;
-        });
-
-        if (blocos !== "") texto += `${cat}\n${blocos}\n`;
-    }
-
-    texto += `TOTAL: R$ ${total.toFixed(2)}`;
-    document.getElementById("resumo").innerText = texto;
-
-    atualizarBarraFixa(total);
-}
-
-function atualizarBarraFixa(total) {
-    document.getElementById("total-barra").innerText = "R$ " + total.toFixed(2);
-}
-
-function limparTudo() {
-    localStorage.clear();
-    location.reload();
+    document.getElementById("total").innerText =
+        "Total: R$ " + total.toFixed(2).replace(".", ",");
 }
 </script>
 
