@@ -114,6 +114,15 @@
         font-weight: bold;
     }
 
+    /* ---------------------- IMAGENS DOS SORVETES ---------------------- */
+    .item-img {
+        width: 100%;
+        max-height: 130px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-top: 10px;
+    }
+
     /* ---------------------- BARRA FIXA ESTILO iFood ---------------------- */
     #barra-fixa {
         position: fixed;
@@ -150,12 +159,8 @@
         font-size: 18px;
     }
 
-    /* Esconde o resumo original */
-    #resumo {
-        display: none;
-    }
+    #resumo { display: none; }
 
-    /* Botão limpar */
     #limpar {
         width: 100%;
         margin-top: 20px;
@@ -171,6 +176,11 @@
 </style>
 
 <script>
+/* ------------------- IMAGEM DO PISTACHE ------------------- */
+let imagensSorvetes = {
+    "Pistache": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcQVWQgr79z-rn9TclE8S0WrzlqIGP6f2zk-TS4Ib6QLbaj7r0OBPK8Ac&s=10"
+};
+
 /* ------------------- PREÇOS ------------------- */
 let precoPorCategoria = {
     "PALETAS FRUTIVERÃO": 18,
@@ -311,6 +321,8 @@ for (let cat in categorias) {
                 <div class="valor">Preço: R$ ${
                     cat === "LANÇAMENTOS" ? precosLancamentos[sabor] : precoPorCategoria[cat]
                 }</div>
+
+                <img class="item-img" src="${imagensSorvetes[sabor] || ''}">
 
                 <div class="controls">
                     <button class="btn menos" onclick="remove(${id})">-</button>
