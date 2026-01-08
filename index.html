@@ -20,9 +20,7 @@ body {
     padding: 20px;
     border-radius: 10px;
 }
-h2 {
-    text-align: center;
-}
+h2 { text-align: center; }
 label {
     font-weight: bold;
     margin-top: 10px;
@@ -34,7 +32,7 @@ input {
     margin-top: 5px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    font-size: 16px; /* impede zoom no iPhone */
+    font-size: 16px; /* evita zoom no iPhone */
 }
 .resultado {
     margin-top: 10px;
@@ -54,7 +52,6 @@ button {
     border-radius: 5px;
     font-size: 16px;
 }
-.btn-calcular { background: #000; color: #fff; }
 .btn-whatsapp { background: #25D366; color: #fff; }
 .btn-limpar { background: #c62828; color: #fff; }
 .clear { clear: both; }
@@ -74,10 +71,11 @@ button {
 <label>Valor vendido no cartão</label>
 <input type="number" id="cartao" step="0.01">
 
+<label>Valor gasto em R$</label>
+<input type="number" id="gasto" step="0.01">
+
 <label>Gelo seco (desconto)</label>
 <input type="number" id="geloSeco" step="0.01">
-
-<button class="btn-calcular" onclick="calcular()">Calcular</button>
 
 <div class="resultado">💵 Dinheiro vendido <span id="dinheiroVendido">R$ 0,00</span><div class="clear"></div></div>
 <div class="resultado">💳 Cartão <span id="cartaoTotal">R$ 0,00</span><div class="clear"></div></div>
@@ -91,31 +89,43 @@ button {
 </div>
 
 <script>
-const campos = ["dinheiroInicial","dinheiroFinal","cartao","geloSeco"];
+const campos = [
+  "dinheiroInicial",
+  "dinheiroFinal",
+  "cartao",
+  "gasto",
+  "geloSeco"
+];
 
+// carregar dados salvos
 window.onload = () => {
     campos.forEach(id => {
-        if (localStorage[id]) document.getElementById(id).value = localStorage[id];
+        const v = localStorage.getItem(id);
+        if (v !== null) document.getElementById(id).value = v;
     });
     calcular();
 };
 
-function salvar() {
-    campos.forEach(id => {
-        localStorage[id] = document.getElementById(id).value;
+// salvar automaticamente ao digitar
+campos.forEach(id => {
+    document.getElementById(id).addEventListener("input", () => {
+        localStorage.setItem(id, document.getElementById(id).value);
+        calcular();
     });
-}
+});
 
 function calcular() {
-    salvar();
-
     let di = +dinheiroInicial.value || 0;
     let df = +dinheiroFinal.value || 0;
     let cartaoV = +cartao.value || 0;
+    let gastoV = +gasto.value || 0;
     let gelo = +geloSeco.value || 0;
 
     let dinheiroVendido = Math.max(df - di, 0);
-    let total = dinheiroVendido + cartaoV;
+
+    // TOTAL REAL DE VENDAS
+    let total = dinheiroVendido + cartaoV + gastoV;
+
     let comissao = total * 0.25;
     let comissaoFinal = Math.max(comissao - gelo, 0);
     let kibon = Math.max(total - comissaoFinal, 0);
@@ -133,6 +143,7 @@ function enviarWhats() {
 `📊 *Relatório de Vendas*
 💵 Dinheiro: ${dinheiroVendidoEl.innerText}
 💳 Cartão: ${cartaoTotalEl.innerText}
+💸 Gasto: ${fmt(+gasto.value || 0)}
 💰 Total: ${totalVendidoEl.innerText}
 📊 Comissão: ${comissaoEl.innerText}
 ❄️ Gelo seco: ${fmt(+geloSeco.value || 0)}
@@ -150,12 +161,13 @@ function limpar() {
 }
 
 function fmt(v) {
-    return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+    return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 const dinheiroInicial = document.getElementById("dinheiroInicial");
 const dinheiroFinal = document.getElementById("dinheiroFinal");
 const cartao = document.getElementById("cartao");
+const gasto = document.getElementById("gasto");
 const geloSeco = document.getElementById("geloSeco");
 
 const dinheiroVendidoEl = document.getElementById("dinheiroVendido");
