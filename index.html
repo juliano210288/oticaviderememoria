@@ -2,353 +2,122 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Pedido de Sorvetes</title>
+<title>Controle de Vendas</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f2f2f7;
-        padding: 12px;
-        max-width: 480px;
-        margin: auto;
-        padding-bottom: 120px; /* espaço para a barra fixa */
-    }
-
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-        font-size: 26px;
-        font-weight: 900;
-        color: #222;
-    }
-
-    /* ---------------------- CATEGORIAS ESTILO iOS ---------------------- */
-    .cat-btn {
-        width: 100%;
-        background: #fff;
-        color: #333;
-        padding: 18px;
-        font-size: 20px;
-        border: none;
-        border-radius: 14px;
-        margin-top: 12px;
-        cursor: pointer;
-        font-weight: bold;
-        text-align: left;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-        transition: 0.2s;
-
-        /* FIXAR NO TOPO */
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-
-    .cat-btn:hover {
-        background: #f7f7f7;
-    }
-
-    .seta {
-        font-size: 20px;
-        transition: transform 0.2s;
-    }
-
-    .categoria {
-        display: none;
-        margin-top: 0;
-        padding-top: 10px;
-        background: #ffffff;
-        padding: 14px;
-        border-radius: 14px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    /* ---------------------- ITENS ---------------------- */
-    .item {
-        background: #fff;
-        padding: 14px;
-        margin: 12px 0;
-        border-radius: 14px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .nome {
-        font-size: 20px;
-        font-weight: bold;
-    }
-
-    .valor {
-        color: #007aff;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-
-    .controls {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-    }
-
-    .btn {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        border: none;
-        cursor: pointer;
-        font-size: 26px;
-        font-weight: bold;
-    }
-
-    .menos { background: #ff3b30; color: white; }
-    .mais  { background: #34c759; color: white; }
-
-    .numero {
-        width: 45px;
-        text-align: center;
-        font-size: 22px;
-        font-weight: bold;
-    }
-
-    /* ---------------------- IMAGENS DOS SORVETES ---------------------- */
-    .item-img {
-        width: 100%;
-        max-height: 130px;
-        object-fit: cover;
-        border-radius: 12px;
-        margin-top: 10px;
-    }
-
-    /* ---------------------- BARRA FIXA ESTILO iFood ---------------------- */
-    #barra-fixa {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        max-width: 480px;
-        margin: auto;
-        background: #007aff;
-        color: white;
-        padding: 18px;
-        font-size: 20px;
-        font-weight: bold;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-radius: 18px 18px 0 0;
-        box-shadow: 0 -4px 14px rgba(0,0,0,0.25);
-    }
-
-    #total-barra {
-        font-size: 22px;
-        font-weight: 900;
-    }
-
-    #ver-pedido-btn {
-        background: white;
-        color: #007aff;
-        padding: 10px 18px;
-        border-radius: 12px;
-        font-weight: bold;
-        border: none;
-        cursor: pointer;
-        font-size: 18px;
-    }
-
-    #resumo { display: none; }
-
-    #limpar {
-        width: 100%;
-        margin-top: 20px;
-        padding: 14px;
-        background: #ff3b30;
-        color: white;
-        font-size: 18px;
-        border: none;
-        border-radius: 12px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 20px;
+}
+.container {
+    max-width: 420px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+}
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+.resultado {
+    margin-top: 15px;
+    background: #f0f0f0;
+    padding: 10px;
+    border-radius: 5px;
+}
+.resultado span {
+    font-weight: bold;
+    float: right;
+}
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
 </style>
-
-<script>
-/* ------------------- IMAGEM DO PISTACHE ------------------- */
-let imagensSorvetes = {
-    "Pistache": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcQVWQgr79z-rn9TclE8S0WrzlqIGP6f2zk-TS4Ib6QLbaj7r0OBPK8Ac&s=10"
-};
-
-/* ------------------- PREÇOS ------------------- */
-let precoPorCategoria = {
-    "PALETAS FRUTIVERÃO": 18,
-    "AO LEITE FRUTIVERÃO": 8,
-    "TROPICAL FRUTIVERÃO": 6,
-    "ESPECIAL FRUTVERÃO": 13,
-    "LANÇAMENTOS": null
-};
-
-let precosLancamentos = {
-    "Pistache": 16,
-    "Unicórnio": 10
-};
-
-/* ------------------- CATEGORIAS ------------------- */
-let categorias = {
-    "PALETAS FRUTIVERÃO": [
-        "Raffaello","Oreo","Ferrero","Kinder Ovo","Kinder Bueno","M&M","Choco Maltine",
-        "Milk Trufado","Babalu","Blue Ice","Sensação","Morango","Maracujá","Açaí",
-        "Iogurte c/ Amora","Menta c/ Chocolate","Paçoca","Capuccino","Banana com Avelã",
-        "Coco c/ Abobora","Coco c/ Doce de Leite","Tapioca","Abacaxi Zero"
-    ],
-
-    "AO LEITE FRUTIVERÃO": [
-        "Morango","Chocolate","Leite Condensado","Milho-Verde","Açaí c/ Morango",
-        "Coco","Coco Queimado","Abóbora c/ Coco","Amendoim","Abacate","Blue Ice"
-    ],
-
-    "TROPICAL FRUTIVERÃO": [
-        "Uva","Limão","Maracujá","Manga","Abacaxi","Melancia","Tangerina",
-        "Maçã Verde","Groselha","Tutti Frutti","Pinta Língua"
-    ],
-
-    "ESPECIAL FRUTVERÃO": [
-        "Skimo morango","Skimo ao leite","Milk trufado","Brigadeiro","Chococo",
-        "Torta de limão","Itu napolitano","Frutblito","Sunday de chocolate","Sundae de Morango"
-    ],
-
-    "LANÇAMENTOS": ["Pistache","Unicórnio"]
-};
-
-let id = 1;
-let vendidoSalvo = JSON.parse(localStorage.getItem("vendido")) || {};
-
-/* ------------------- FUNÇÕES ------------------- */
-
-function toggle(cat) {
-    let el = document.getElementById("cat_" + cat);
-    let seta = document.getElementById("seta_" + cat);
-
-    el.style.display = el.style.display === "block" ? "none" : "block";
-    seta.style.transform = el.style.display === "block" ? "rotate(90deg)" : "rotate(0deg)";
-}
-
-function add(id) {
-    let campo = document.getElementById("vend_" + id);
-    campo.innerText = Number(campo.innerText) + 1;
-    vendidoSalvo[id] = Number(campo.innerText);
-    salvar();
-    gerarResumo();
-}
-
-function remove(id) {
-    let campo = document.getElementById("vend_" + id);
-    if (Number(campo.innerText) > 0) campo.innerText--;
-    vendidoSalvo[id] = Number(campo.innerText);
-    salvar();
-    gerarResumo();
-}
-
-function salvar() {
-    localStorage.setItem("vendido", JSON.stringify(vendidoSalvo));
-}
-
-function gerarResumo() {
-    let texto = "";
-    let total = 0;
-    let i = 1;
-
-    for (let cat in categorias) {
-        let blocos = "";
-        categorias[cat].forEach(sabor => {
-            let q = vendidoSalvo[i] || 0;
-            if (q > 0) {
-                blocos += `${q} - ${sabor}\n`;
-                let preco = precoPorCategoria[cat];
-                if (cat === "LANÇAMENTOS") preco = precosLancamentos[sabor];
-                total += q * preco;
-            }
-            i++;
-        });
-
-        if (blocos !== "")
-            texto += `${cat}\n${blocos}\n`;
-    }
-
-    texto += `TOTAL: R$ ${total.toFixed(2)}`;
-
-    document.getElementById("resumo").innerText = texto;
-
-    atualizarBarraFixa(total);
-}
-
-function limparTudo() {
-    localStorage.clear();
-    location.reload();
-}
-
-function atualizarBarraFixa(total) {
-    document.getElementById("total-barra").innerText = "R$ " + total.toFixed(2);
-}
-</script>
-
 </head>
+
 <body>
+<div class="container">
+    <h2>Controle de Vendas</h2>
 
-<h1>Tirar Pedido</h1>
+    <label>Dinheiro inicial (espécie)</label>
+    <input type="number" id="dinheiroInicial" step="0.01">
 
-<div id="conteudo">
+    <label>Dinheiro final (fim do dia)</label>
+    <input type="number" id="dinheiroFinal" step="0.01">
+
+    <label>Valor vendido no cartão</label>
+    <input type="number" id="cartao" step="0.01">
+
+    <label>Gasto com gelo seco</label>
+    <input type="number" id="geloSeco" step="0.01">
+
+    <button onclick="calcular()">Calcular</button>
+
+    <div class="resultado">
+        💵 Dinheiro vendido <span id="dinheiroVendido">R$ 0,00</span>
+    </div>
+    <div class="resultado">
+        💳 Cartão <span id="cartaoTotal">R$ 0,00</span>
+    </div>
+    <div class="resultado">
+        💰 Total vendido <span id="totalVendido">R$ 0,00</span>
+    </div>
+    <div class="resultado">
+        📊 Comissão (25%) <span id="comissao">R$ 0,00</span>
+    </div>
+    <div class="resultado">
+        ❄️ Comissão final <span id="comissaoFinal">R$ 0,00</span>
+    </div>
+</div>
 
 <script>
-for (let cat in categorias) {
-    document.write(`
-        <button class="cat-btn" onclick="toggle('${cat}')">
-            ${cat}
-            <span class="seta" id="seta_${cat}">▶</span>
-        </button>
-    `);
+function calcular() {
+    let dinheiroInicial = parseFloat(document.getElementById("dinheiroInicial").value) || 0;
+    let dinheiroFinal = parseFloat(document.getElementById("dinheiroFinal").value) || 0;
+    let cartao = parseFloat(document.getElementById("cartao").value) || 0;
+    let geloSeco = parseFloat(document.getElementById("geloSeco").value) || 0;
 
-    document.write(`<div id="cat_${cat}" class="categoria">`);
+    let dinheiroVendido = dinheiroFinal - dinheiroInicial;
+    if (dinheiroVendido < 0) dinheiroVendido = 0;
 
-    categorias[cat].forEach(sabor => {
-        let v = vendidoSalvo[id] || 0;
+    let totalVendido = dinheiroVendido + cartao;
+    let comissao = totalVendido * 0.25;
+    let comissaoFinal = comissao - geloSeco;
+    if (comissaoFinal < 0) comissaoFinal = 0;
 
-        document.write(`
-            <div class="item">
-                <div class="nome">${sabor}</div>
-                <div class="valor">Preço: R$ ${
-                    cat === "LANÇAMENTOS" ? precosLancamentos[sabor] : precoPorCategoria[cat]
-                }</div>
+    document.getElementById("dinheiroVendido").innerText = formatar(dinheiroVendido);
+    document.getElementById("cartaoTotal").innerText = formatar(cartao);
+    document.getElementById("totalVendido").innerText = formatar(totalVendido);
+    document.getElementById("comissao").innerText = formatar(comissao);
+    document.getElementById("comissaoFinal").innerText = formatar(comissaoFinal);
+}
 
-                <img class="item-img" src="${imagensSorvetes[sabor] || ''}">
-
-                <div class="controls">
-                    <button class="btn menos" onclick="remove(${id})">-</button>
-                    <span class="numero" id="vend_${id}">${v}</span>
-                    <button class="btn mais" onclick="add(${id})">+</button>
-                </div>
-            </div>
-        `);
-
-        id++;
-    });
-
-    document.write("</div>");
+function formatar(valor) {
+    return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 </script>
-
-</div>
-
-<div id="resumo">Nenhum item selecionado.</div>
-
-<button id="limpar" onclick="limparTudo()">LIMPAR</button>
-
-<div id="barra-fixa">
-    <span id="total-barra">R$ 0,00</span>
-    <button id="ver-pedido-btn" onclick="alert(resumo.innerText)">Ver pedido</button>
-</div>
 
 </body>
 </html>
