@@ -22,7 +22,6 @@ body {
 }
 h2 {
     text-align: center;
-    margin-bottom: 20px;
 }
 label {
     font-weight: bold;
@@ -35,10 +34,10 @@ input {
     margin-top: 5px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    font-size: 16px; /* impede zoom no iPhone */
+    font-size: 16px; /* evita zoom no iPhone */
 }
 .resultado {
-    margin-top: 12px;
+    margin-top: 10px;
     background: #f0f0f0;
     padding: 10px;
     border-radius: 5px;
@@ -50,111 +49,122 @@ input {
 button {
     width: 100%;
     padding: 14px;
-    margin-top: 15px;
-    background: #000;
-    color: #fff;
+    margin-top: 12px;
     border: none;
     border-radius: 5px;
     font-size: 16px;
 }
-.clear {
-    clear: both;
-}
+.btn-calcular { background: #000; color: #fff; }
+.btn-whatsapp { background: #25D366; color: #fff; }
+.btn-limpar { background: #c62828; color: #fff; }
+.clear { clear: both; }
 </style>
 </head>
 
 <body>
 <div class="container">
-    <h2>Controle de Vendas</h2>
+<h2>Controle de Vendas</h2>
 
-    <label>Dinheiro inicial (espécie)</label>
-    <input type="number" id="dinheiroInicial" step="0.01">
+<label>Dinheiro inicial (espécie)</label>
+<input type="number" id="dinheiroInicial" step="0.01">
 
-    <label>Dinheiro final (fim do dia)</label>
-    <input type="number" id="dinheiroFinal" step="0.01">
+<label>Dinheiro final (fim do dia)</label>
+<input type="number" id="dinheiroFinal" step="0.01">
 
-    <label>Valor vendido no cartão</label>
-    <input type="number" id="cartao" step="0.01">
+<label>Sangria (retirado do caixa)</label>
+<input type="number" id="sangria" step="0.01">
 
-    <label>Gelo seco (desconto)</label>
-    <input type="number" id="geloSeco" step="0.01">
+<label>Valor vendido no cartão</label>
+<input type="number" id="cartao" step="0.01">
 
-    <button onclick="calcular()">Calcular</button>
+<label>Gelo seco (desconto)</label>
+<input type="number" id="geloSeco" step="0.01">
 
-    <div class="resultado">
-        💵 Dinheiro vendido
-        <span id="dinheiroVendido">R$ 0,00</span>
-        <div class="clear"></div>
-    </div>
+<button class="btn-calcular" onclick="calcular()">Calcular</button>
 
-    <div class="resultado">
-        💳 Cartão
-        <span id="cartaoTotal">R$ 0,00</span>
-        <div class="clear"></div>
-    </div>
+<div class="resultado">💵 Dinheiro vendido <span id="dinheiroVendido">R$ 0,00</span><div class="clear"></div></div>
+<div class="resultado">💳 Cartão <span id="cartaoTotal">R$ 0,00</span><div class="clear"></div></div>
+<div class="resultado">💰 Total vendido <span id="totalVendido">R$ 0,00</span><div class="clear"></div></div>
+<div class="resultado">📊 Comissão (25%) <span id="comissao">R$ 0,00</span><div class="clear"></div></div>
+<div class="resultado">❄️ Comissão final <span id="comissaoFinal">R$ 0,00</span><div class="clear"></div></div>
+<div class="resultado">🏪 Valor P/ Kibon <span id="valorKibon">R$ 0,00</span><div class="clear"></div></div>
 
-    <div class="resultado">
-        💰 Total vendido
-        <span id="totalVendido">R$ 0,00</span>
-        <div class="clear"></div>
-    </div>
-
-    <div class="resultado">
-        📊 Comissão (25%)
-        <span id="comissao">R$ 0,00</span>
-        <div class="clear"></div>
-    </div>
-
-    <div class="resultado">
-        ❄️ Comissão final
-        <span id="comissaoFinal">R$ 0,00</span>
-        <div class="clear"></div>
-    </div>
-
-    <div class="resultado">
-        🏪 Valor P/ Kibon
-        <span id="valorKibon">R$ 0,00</span>
-        <div class="clear"></div>
-    </div>
+<button class="btn-whatsapp" onclick="enviarWhats()">Enviar relatório</button>
+<button class="btn-limpar" onclick="limpar()">Limpar tudo</button>
 </div>
 
 <script>
-function calcular() {
-    let dinheiroInicial = parseFloat(dinheiroInicialEl.value) || 0;
-    let dinheiroFinal = parseFloat(dinheiroFinalEl.value) || 0;
-    let cartao = parseFloat(cartaoEl.value) || 0;
-    let geloSeco = parseFloat(geloSecoEl.value) || 0;
+const campos = ["dinheiroInicial","dinheiroFinal","sangria","cartao","geloSeco"];
 
-    let dinheiroVendido = dinheiroFinal - dinheiroInicial;
-    if (dinheiroVendido < 0) dinheiroVendido = 0;
+window.onload = () => {
+    campos.forEach(id => {
+        if (localStorage[id]) document.getElementById(id).value = localStorage[id];
+    });
+    calcular();
+};
 
-    let totalVendido = dinheiroVendido + cartao;
-    let comissao = totalVendido * 0.25;
-    let comissaoFinal = comissao - geloSeco;
-    if (comissaoFinal < 0) comissaoFinal = 0;
-
-    let valorKibon = totalVendido - comissaoFinal;
-    if (valorKibon < 0) valorKibon = 0;
-
-    dinheiroVendidoEl.innerText = formatar(dinheiroVendido);
-    cartaoTotalEl.innerText = formatar(cartao);
-    totalVendidoEl.innerText = formatar(totalVendido);
-    comissaoEl.innerText = formatar(comissao);
-    comissaoFinalEl.innerText = formatar(comissaoFinal);
-    valorKibonEl.innerText = formatar(valorKibon);
-}
-
-function formatar(valor) {
-    return valor.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
+function salvar() {
+    campos.forEach(id => {
+        localStorage[id] = document.getElementById(id).value;
     });
 }
 
-const dinheiroInicialEl = document.getElementById("dinheiroInicial");
-const dinheiroFinalEl = document.getElementById("dinheiroFinal");
-const cartaoEl = document.getElementById("cartao");
-const geloSecoEl = document.getElementById("geloSeco");
+function calcular() {
+    salvar();
+
+    let di = +dinheiroInicial.value || 0;
+    let df = +dinheiroFinal.value || 0;
+    let sang = +sangria.value || 0;
+    let cartaoV = +cartao.value || 0;
+    let gelo = +geloSeco.value || 0;
+
+    // dinheiro real vendido considera sangria
+    let dinheiroVendido = Math.max((df + sang) - di, 0);
+
+    let total = dinheiroVendido + cartaoV;
+    let comissao = total * 0.25;
+    let comissaoFinal = Math.max(comissao - gelo, 0);
+    let kibon = Math.max(total - comissaoFinal, 0);
+
+    dinheiroVendidoEl.innerText = fmt(dinheiroVendido);
+    cartaoTotalEl.innerText = fmt(cartaoV);
+    totalVendidoEl.innerText = fmt(total);
+    comissaoEl.innerText = fmt(comissao);
+    comissaoFinalEl.innerText = fmt(comissaoFinal);
+    valorKibonEl.innerText = fmt(kibon);
+}
+
+function enviarWhats() {
+    let texto =
+`📊 *Relatório de Vendas*
+💵 Dinheiro: ${dinheiroVendidoEl.innerText}
+💳 Cartão: ${cartaoTotalEl.innerText}
+💰 Total: ${totalVendidoEl.innerText}
+📊 Comissão: ${comissaoEl.innerText}
+❄️ Gelo seco: ${fmt(+geloSeco.value || 0)}
+💸 Sangria: ${fmt(+sangria.value || 0)}
+✅ Comissão final: ${comissaoFinalEl.innerText}
+🏪 Valor P/ Kibon: ${valorKibonEl.innerText}`;
+
+    window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
+}
+
+function limpar() {
+    if (confirm("Tem certeza que deseja limpar todos os dados?")) {
+        localStorage.clear();
+        location.reload();
+    }
+}
+
+function fmt(v) {
+    return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+
+const dinheiroInicial = document.getElementById("dinheiroInicial");
+const dinheiroFinal = document.getElementById("dinheiroFinal");
+const sangria = document.getElementById("sangria");
+const cartao = document.getElementById("cartao");
+const geloSeco = document.getElementById("geloSeco");
 
 const dinheiroVendidoEl = document.getElementById("dinheiroVendido");
 const cartaoTotalEl = document.getElementById("cartaoTotal");
@@ -163,6 +173,5 @@ const comissaoEl = document.getElementById("comissao");
 const comissaoFinalEl = document.getElementById("comissaoFinal");
 const valorKibonEl = document.getElementById("valorKibon");
 </script>
-
 </body>
 </html>
