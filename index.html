@@ -34,7 +34,7 @@ input {
     margin-top: 5px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    font-size: 16px; /* evita zoom no iPhone */
+    font-size: 16px; /* impede zoom no iPhone */
 }
 .resultado {
     margin-top: 10px;
@@ -71,9 +71,6 @@ button {
 <label>Dinheiro final (fim do dia)</label>
 <input type="number" id="dinheiroFinal" step="0.01">
 
-<label>Sangria (retirado do caixa)</label>
-<input type="number" id="sangria" step="0.01">
-
 <label>Valor vendido no cartão</label>
 <input type="number" id="cartao" step="0.01">
 
@@ -94,7 +91,7 @@ button {
 </div>
 
 <script>
-const campos = ["dinheiroInicial","dinheiroFinal","sangria","cartao","geloSeco"];
+const campos = ["dinheiroInicial","dinheiroFinal","cartao","geloSeco"];
 
 window.onload = () => {
     campos.forEach(id => {
@@ -114,13 +111,10 @@ function calcular() {
 
     let di = +dinheiroInicial.value || 0;
     let df = +dinheiroFinal.value || 0;
-    let sang = +sangria.value || 0;
     let cartaoV = +cartao.value || 0;
     let gelo = +geloSeco.value || 0;
 
-    // dinheiro real vendido considera sangria
-    let dinheiroVendido = Math.max((df + sang) - di, 0);
-
+    let dinheiroVendido = Math.max(df - di, 0);
     let total = dinheiroVendido + cartaoV;
     let comissao = total * 0.25;
     let comissaoFinal = Math.max(comissao - gelo, 0);
@@ -142,7 +136,6 @@ function enviarWhats() {
 💰 Total: ${totalVendidoEl.innerText}
 📊 Comissão: ${comissaoEl.innerText}
 ❄️ Gelo seco: ${fmt(+geloSeco.value || 0)}
-💸 Sangria: ${fmt(+sangria.value || 0)}
 ✅ Comissão final: ${comissaoFinalEl.innerText}
 🏪 Valor P/ Kibon: ${valorKibonEl.innerText}`;
 
@@ -162,7 +155,6 @@ function fmt(v) {
 
 const dinheiroInicial = document.getElementById("dinheiroInicial");
 const dinheiroFinal = document.getElementById("dinheiroFinal");
-const sangria = document.getElementById("sangria");
 const cartao = document.getElementById("cartao");
 const geloSeco = document.getElementById("geloSeco");
 
@@ -174,4 +166,4 @@ const comissaoFinalEl = document.getElementById("comissaoFinal");
 const valorKibonEl = document.getElementById("valorKibon");
 </script>
 </body>
-</html> 
+</html>
