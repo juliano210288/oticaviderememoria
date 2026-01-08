@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Controle de Vendas</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
 body {
@@ -29,13 +31,14 @@ label {
 }
 input {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-top: 5px;
     border-radius: 5px;
     border: 1px solid #ccc;
+    font-size: 16px; /* impede zoom no iPhone */
 }
 .resultado {
-    margin-top: 15px;
+    margin-top: 12px;
     background: #f0f0f0;
     padding: 10px;
     border-radius: 5px;
@@ -46,13 +49,16 @@ input {
 }
 button {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     margin-top: 15px;
     background: #000;
     color: #fff;
     border: none;
     border-radius: 5px;
     font-size: 16px;
+}
+.clear {
+    clear: both;
 }
 </style>
 </head>
@@ -70,34 +76,54 @@ button {
     <label>Valor vendido no cartão</label>
     <input type="number" id="cartao" step="0.01">
 
-    <label>Gasto com gelo seco</label>
+    <label>Gelo seco (desconto)</label>
     <input type="number" id="geloSeco" step="0.01">
 
     <button onclick="calcular()">Calcular</button>
 
     <div class="resultado">
-        💵 Dinheiro vendido <span id="dinheiroVendido">R$ 0,00</span>
+        💵 Dinheiro vendido
+        <span id="dinheiroVendido">R$ 0,00</span>
+        <div class="clear"></div>
     </div>
+
     <div class="resultado">
-        💳 Cartão <span id="cartaoTotal">R$ 0,00</span>
+        💳 Cartão
+        <span id="cartaoTotal">R$ 0,00</span>
+        <div class="clear"></div>
     </div>
+
     <div class="resultado">
-        💰 Total vendido <span id="totalVendido">R$ 0,00</span>
+        💰 Total vendido
+        <span id="totalVendido">R$ 0,00</span>
+        <div class="clear"></div>
     </div>
+
     <div class="resultado">
-        📊 Comissão (25%) <span id="comissao">R$ 0,00</span>
+        📊 Comissão (25%)
+        <span id="comissao">R$ 0,00</span>
+        <div class="clear"></div>
     </div>
+
     <div class="resultado">
-        ❄️ Comissão final <span id="comissaoFinal">R$ 0,00</span>
+        ❄️ Comissão final
+        <span id="comissaoFinal">R$ 0,00</span>
+        <div class="clear"></div>
+    </div>
+
+    <div class="resultado">
+        🏪 Valor P/ Kibon
+        <span id="valorKibon">R$ 0,00</span>
+        <div class="clear"></div>
     </div>
 </div>
 
 <script>
 function calcular() {
-    let dinheiroInicial = parseFloat(document.getElementById("dinheiroInicial").value) || 0;
-    let dinheiroFinal = parseFloat(document.getElementById("dinheiroFinal").value) || 0;
-    let cartao = parseFloat(document.getElementById("cartao").value) || 0;
-    let geloSeco = parseFloat(document.getElementById("geloSeco").value) || 0;
+    let dinheiroInicial = parseFloat(dinheiroInicialEl.value) || 0;
+    let dinheiroFinal = parseFloat(dinheiroFinalEl.value) || 0;
+    let cartao = parseFloat(cartaoEl.value) || 0;
+    let geloSeco = parseFloat(geloSecoEl.value) || 0;
 
     let dinheiroVendido = dinheiroFinal - dinheiroInicial;
     if (dinheiroVendido < 0) dinheiroVendido = 0;
@@ -107,16 +133,35 @@ function calcular() {
     let comissaoFinal = comissao - geloSeco;
     if (comissaoFinal < 0) comissaoFinal = 0;
 
-    document.getElementById("dinheiroVendido").innerText = formatar(dinheiroVendido);
-    document.getElementById("cartaoTotal").innerText = formatar(cartao);
-    document.getElementById("totalVendido").innerText = formatar(totalVendido);
-    document.getElementById("comissao").innerText = formatar(comissao);
-    document.getElementById("comissaoFinal").innerText = formatar(comissaoFinal);
+    let valorKibon = totalVendido - comissaoFinal;
+    if (valorKibon < 0) valorKibon = 0;
+
+    dinheiroVendidoEl.innerText = formatar(dinheiroVendido);
+    cartaoTotalEl.innerText = formatar(cartao);
+    totalVendidoEl.innerText = formatar(totalVendido);
+    comissaoEl.innerText = formatar(comissao);
+    comissaoFinalEl.innerText = formatar(comissaoFinal);
+    valorKibonEl.innerText = formatar(valorKibon);
 }
 
 function formatar(valor) {
-    return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    return valor.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
 }
+
+const dinheiroInicialEl = document.getElementById("dinheiroInicial");
+const dinheiroFinalEl = document.getElementById("dinheiroFinal");
+const cartaoEl = document.getElementById("cartao");
+const geloSecoEl = document.getElementById("geloSeco");
+
+const dinheiroVendidoEl = document.getElementById("dinheiroVendido");
+const cartaoTotalEl = document.getElementById("cartaoTotal");
+const totalVendidoEl = document.getElementById("totalVendido");
+const comissaoEl = document.getElementById("comissao");
+const comissaoFinalEl = document.getElementById("comissaoFinal");
+const valorKibonEl = document.getElementById("valorKibon");
 </script>
 
 </body>
