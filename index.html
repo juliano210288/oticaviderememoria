@@ -112,6 +112,14 @@ h1 {
     gap: 6px;
 }
 
+/* FORÇA TEXTO PRETO */
+.controls span,
+.numero {
+    color: #000 !important;
+    font-weight: 800;
+}
+
+/* INPUT NUMÉRICO */
 input[type="number"] {
     width: 60px;
     padding: 6px;
@@ -120,10 +128,6 @@ input[type="number"] {
     font-size: 16px;
     font-weight: 800;
     text-align: center;
-}
-
-.numero {
-    font-weight: 800;
 }
 
 .btn {
@@ -189,12 +193,17 @@ let categorias = {
 let id=1, total=0;
 
 function toggle(cat){
+    let btn = document.getElementById("btn_"+cat);
+    let box = document.getElementById("cat_"+cat);
+    let aberto = box.style.display === "block";
+
     document.querySelectorAll(".categoria").forEach(c=>c.style.display="none");
     document.querySelectorAll(".cat-btn").forEach(b=>b.classList.remove("ativo"));
 
-    let el=document.getElementById("cat_"+cat);
-    el.style.display="block";
-    document.getElementById("btn_"+cat).classList.add("ativo");
+    if(!aberto){
+        box.style.display="block";
+        btn.classList.add("ativo");
+    }
 }
 
 function atualizar(i){
@@ -254,7 +263,8 @@ document.write(`
 <div class="linha">
 <div class="controls">
 <span>Estoque</span>
-<input type="number" id="est_${id}" min="0" value="0" oninput="atualizar(${id})">
+<input type="number" inputmode="numeric" pattern="[0-9]*"
+id="est_${id}" min="0" value="0" oninput="atualizar(${id})">
 </div>
 </div>
 
