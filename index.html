@@ -14,12 +14,15 @@ body {
     max-width: 480px;
     margin: auto;
 }
+
 h1 {
     text-align: center;
     margin-bottom: 20px;
     font-size: 26px;
     font-weight: 900;
 }
+
+/* BOTÃO CATEGORIA */
 .cat-btn {
     width: 100%;
     background: #007aff;
@@ -32,64 +35,97 @@ h1 {
     cursor: pointer;
     font-weight: 700;
 }
+
 .cat-btn.ativo {
     background: #34c759;
-}
-.cat-btn.sticky-open {
     position: sticky;
-    top: 12px;
-    z-index: 30;
-}
-.categoria {
-    display: none;
-    margin-top: 4px;
-    background: #ffffff;
-    padding: 4px;
-    border-radius: 10px;
+    top: 10px;
+    z-index: 50;
 }
 
+.categoria {
+    display: none;
+    margin-top: 6px;
+    background: #ffffff;
+    padding: 6px;
+    border-radius: 12px;
+}
+
+/* ITEM */
 .item {
     background: #fff;
     padding: 8px;
     margin: 6px 0;
     border-radius: 12px;
 }
+
 .item.zero {
     background: #ff4d4d !important;
     color: white !important;
 }
+
 .item.card {
     display: flex;
     justify-content: space-between;
     gap: 10px;
 }
-.info { flex: 1; }
-.nome { font-size: 17px; font-weight: 800; }
-.valor { font-size: 14px; font-weight: 700; color: #007aff; }
-.item.zero .valor { color: #fff; }
-.restante { font-size: 16px; font-weight: 800; }
 
+.info { flex: 1; }
+
+.nome {
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.valor {
+    font-size: 14px;
+    font-weight: 700;
+    color: #007aff;
+}
+
+.item.zero .valor {
+    color: #fff;
+}
+
+.restante {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+/* PAINEL */
 .painel {
     background: #f1f1f1;
     padding: 8px;
     border-radius: 10px;
     min-width: 150px;
 }
+
 .linha {
     display: flex;
     justify-content: space-between;
     margin-top: 6px;
 }
+
 .controls {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
 }
-.controls span,
+
+input[type="number"] {
+    width: 60px;
+    padding: 6px;
+    border-radius: 6px;
+    border: none;
+    font-size: 16px;
+    font-weight: 800;
+    text-align: center;
+}
+
 .numero {
-    color: #000 !important;
     font-weight: 800;
 }
+
 .btn {
     width: 28px;
     height: 28px;
@@ -100,7 +136,7 @@ h1 {
     font-weight: 800;
 }
 
-#totalVendas, .caixa-info {
+#totalVendas {
     margin-top: 14px;
     padding: 14px;
     background: #e6fff0;
@@ -125,12 +161,8 @@ h1 {
 
 <script>
 let precoPorCategoria = {
-    "MAGNUM": null,
-    "CORNETTO": null,
-    "OS FAVORITOS": null,
     "FRUTARE": 10,
-    "FRUTILLY": 7.5,
-    "HARRY POTTER": null
+    "FRUTILLY": 7.5
 };
 
 let precosLancamentos = {
@@ -157,25 +189,32 @@ let categorias = {
 let id=1, total=0;
 
 function toggle(cat){
-    let el=document.getElementById("cat_"+cat);
-    let open=el.style.display!=="block";
     document.querySelectorAll(".categoria").forEach(c=>c.style.display="none");
-    if(open) el.style.display="block";
+    document.querySelectorAll(".cat-btn").forEach(b=>b.classList.remove("ativo"));
+
+    let el=document.getElementById("cat_"+cat);
+    el.style.display="block";
+    document.getElementById("btn_"+cat).classList.add("ativo");
 }
 
-function atualizar(id){
-    let est=+document.getElementById("est_"+id).innerText;
-    let vend=+document.getElementById("vend_"+id).innerText;
-    let r=Math.max(0,est-vend);
-    document.getElementById("resto_"+id).innerText="Restante: "+r;
-    document.getElementById("item_"+id).classList.toggle("zero",r===0);
+function atualizar(i){
+    let est = +document.getElementById("est_"+i).value || 0;
+    let vend = +document.getElementById("vend_"+i).innerText;
+    let r = Math.max(0, est - vend);
+
+    document.getElementById("resto_"+i).innerText = "Restante: " + r;
+    document.getElementById("item_"+i).classList.toggle("zero", r === 0);
     recalcular();
 }
 
-function add(t,i){document.getElementById(t+"_"+i).innerText++;atualizar(i);}
-function remove(t,i){
-    let e=document.getElementById(t+"_"+i);
-    if(+e.innerText>0)e.innerText--;
+function addVend(i){
+    document.getElementById("vend_"+i).innerText++;
+    atualizar(i);
+}
+
+function removeVend(i){
+    let v = document.getElementById("vend_"+i);
+    if(+v.innerText>0) v.innerText--;
     atualizar(i);
 }
 
@@ -183,12 +222,12 @@ function recalcular(){
     let i=1; total=0;
     for(let c in categorias){
         categorias[c].forEach(s=>{
-            let p=(c==="FRUTARE"||c==="FRUTILLY")?precoPorCategoria[c]:precosLancamentos[s];
-            total+=+document.getElementById("vend_"+i).innerText*p;
+            let p = precoPorCategoria[c] ?? precosLancamentos[s];
+            total += +document.getElementById("vend_"+i).innerText * p;
             i++;
         });
     }
-    document.getElementById("valorTotal").innerText=total.toFixed(2);
+    document.getElementById("valorTotal").innerText = total.toFixed(2);
 }
 </script>
 </head>
@@ -200,31 +239,31 @@ function recalcular(){
 <div id="conteudo">
 <script>
 for(let c in categorias){
-document.write(`<button class="cat-btn" onclick="toggle('${c}')">${c}</button><div id="cat_${c}" class="categoria">`);
+document.write(`<button id="btn_${c}" class="cat-btn" onclick="toggle('${c}')">${c}</button><div id="cat_${c}" class="categoria">`);
 categorias[c].forEach(s=>{
-let p=(c==="FRUTARE"||c==="FRUTILLY")?precoPorCategoria[c]:precosLancamentos[s];
+let p = precoPorCategoria[c] ?? precosLancamentos[s];
 document.write(`
-<div class="item card" id="item_${id}">
+<div class="item card zero" id="item_${id}">
 <div class="info">
 <div class="nome">${s}</div>
 <div class="valor">Preço: R$ ${p.toFixed(2)}</div>
 <div class="restante" id="resto_${id}">Restante: 0</div>
 </div>
+
 <div class="painel">
 <div class="linha">
 <div class="controls">
 <span>Estoque</span>
-<button class="btn" onclick="remove('est',${id})">-</button>
-<span class="numero" id="est_${id}">0</span>
-<button class="btn" onclick="add('est',${id})">+</button>
+<input type="number" id="est_${id}" min="0" value="0" oninput="atualizar(${id})">
 </div>
 </div>
+
 <div class="linha">
 <div class="controls">
 <span>Vendido</span>
-<button class="btn" onclick="remove('vend',${id})">-</button>
+<button class="btn" onclick="removeVend(${id})">-</button>
 <span class="numero" id="vend_${id}">0</span>
-<button class="btn" onclick="add('vend',${id})">+</button>
+<button class="btn" onclick="addVend(${id})">+</button>
 </div>
 </div>
 </div>
