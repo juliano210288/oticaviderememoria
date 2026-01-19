@@ -238,6 +238,13 @@ function recalcular(){
     }
     document.getElementById("valorTotal").innerText = total.toFixed(2);
 }
+
+/* CONFIRMAÇÃO DE LIMPAR */
+function confirmarLimpeza(){
+    if(confirm("Tem certeza que deseja limpar todo o controle de sorvetes?")){
+        location.reload();
+    }
+}
 </script>
 </head>
 
@@ -264,7 +271,7 @@ document.write(`
 <div class="controls">
 <span>Estoque</span>
 <input type="number" inputmode="numeric" pattern="[0-9]*"
-id="est_${id}" min="0" value="0" oninput="atualizar(${id})">
+id="est_${id}" min="0" value="" oninput="atualizar(${id})">
 </div>
 </div>
 
@@ -287,7 +294,7 @@ document.write("</div>");
 
 <div id="totalVendas">TOTAL EM VENDAS: R$ <span id="valorTotal">0.00</span></div>
 
-<button id="limpar" onclick="location.reload()">LIMPAR TUDO</button>
+<button id="limpar" onclick="confirmarLimpeza()">LIMPAR TUDO</button>
 
 </body>
 </html>
