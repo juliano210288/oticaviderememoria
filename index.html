@@ -113,7 +113,9 @@ h1 {
     font-weight: 800;
 }
 
-input[type="number"] {
+/* INPUTS */
+input[type="number"],
+input[type="tel"] {
     width: 80px;
     padding: 6px;
     border-radius: 6px;
@@ -121,6 +123,13 @@ input[type="number"] {
     font-size: 16px;
     font-weight: 800;
     text-align: center;
+}
+
+/* GELO SECO SEMPRE AZUL */
+#gelo {
+    background: #e8f0ff;
+    color: #003a8f;
+    border: 2px solid #007aff;
 }
 
 .btn {
@@ -154,10 +163,11 @@ input[type="number"] {
     color: #0b6b1a;
 }
 
-#comissaoFinal {
+#comissaoBox {
     margin-top: 10px;
-    font-size: 20px;
+    font-size: 18px;
     color: #007aff;
+    font-weight: 900;
 }
 
 #limpar {
@@ -254,7 +264,7 @@ function recalcular(){
     document.getElementById("valorTotal").innerText = total.toFixed(2);
     document.getElementById("valorSorveteria").innerText = sorveteria.toFixed(2);
     document.getElementById("minhaParte").innerText = minhaParte.toFixed(2);
-    document.getElementById("comissaoFinal").innerText = comissao.toFixed(2);
+    document.getElementById("valorComissao").innerText = comissao.toFixed(2);
 }
 
 function confirmarLimpeza(){
@@ -287,7 +297,8 @@ document.write(`
 <div class="linha">
 <div class="controls">
 <span>Estoque</span>
-<input type="number" id="est_${id}" value="" oninput="atualizar(${id})">
+<input type="tel" inputmode="numeric" pattern="[0-9]*"
+id="est_${id}" value="" oninput="atualizar(${id})">
 </div>
 </div>
 
@@ -311,7 +322,8 @@ document.write("</div>");
 <div class="resumo">
 <div>
 <span>Gelo Seco (R$)</span>
-<input type="number" id="gelo" value="" oninput="recalcular()">
+<input type="tel" inputmode="numeric" pattern="[0-9]*"
+id="gelo" value="" oninput="recalcular()">
 </div>
 
 <div id="totalVendas">
@@ -329,9 +341,9 @@ document.write("</div>");
 <span>R$ <span id="minhaParte">0.00</span></span>
 </div>
 
-<div id="comissaoFinal">
-<span>Sua Comissão Final</span>
-<span>R$ <span id="comissaoFinal">0.00</span></span>
+<div id="comissaoBox">
+<span>Comissão Final (com gelo seco descontado)</span>
+<span>R$ <span id="valorComissao">0.00</span></span>
 </div>
 </div>
 
