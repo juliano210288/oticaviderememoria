@@ -267,8 +267,11 @@ function removeVend(i){
     atualizar(i);
 }
 
+/* ✅ GELO SECO SOMADO À SORVETERIA */
 function recalcular(){
-    let i=1; total=0;
+    let i=1; 
+    total=0;
+
     for(let c in categorias){
         categorias[c].forEach(s=>{
             let p = precoPorCategoria[c] ?? precosLancamentos[s];
@@ -278,14 +281,18 @@ function recalcular(){
     }
 
     let gelo = +document.getElementById("gelo").value || 0;
-    let minhaParte = total * 0.25;
-    let comissao = Math.max(0, minhaParte - gelo);
-    let sorveteria = total * 0.75;
+
+    let minhaParteBruta = total * 0.25;
+    let sorveteriaBase = total * 0.75;
+
+    let minhaParte = Math.max(0, minhaParteBruta - gelo);
+    let sorveteria = sorveteriaBase + gelo;
 
     document.getElementById("valorTotal").innerText = total.toFixed(2);
     document.getElementById("valorSorveteria").innerText = sorveteria.toFixed(2);
     document.getElementById("minhaParte").innerText = minhaParte.toFixed(2);
-    document.getElementById("valorComissao").innerText = comissao.toFixed(2);
+    document.getElementById("valorComissao").innerText = minhaParte.toFixed(2);
+
     salvarDados();
 }
 
@@ -350,7 +357,7 @@ document.write("</div>");
 <div id="totalVendas">
 <span>Total de Vendas</span>
 <span>R$ <span id="valorTotal">0.00</span></span>
-</div>
+</div> 
 
 <div>
 <span>Pagamento Sorveteria (75%)</span>
