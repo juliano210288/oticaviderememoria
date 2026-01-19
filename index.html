@@ -3,18 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <title>Controle de Sorvetes</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
 body {
     font-family: Arial, sans-serif;
     background: #f2f2f7;
     padding: 12px;
+    color: #333;
     max-width: 480px;
     margin: auto;
 }
 h1 {
     text-align: center;
+    margin-bottom: 20px;
     font-size: 26px;
     font-weight: 900;
 }
@@ -22,19 +24,30 @@ h1 {
     width: 100%;
     background: #007aff;
     color: white;
-    padding: 12px;
+    padding: 12px 14px;
     font-size: 17px;
     border: none;
     border-radius: 12px;
     margin-top: 12px;
+    cursor: pointer;
     font-weight: 700;
+}
+.cat-btn.ativo {
+    background: #34c759;
+}
+.cat-btn.sticky-open {
+    position: sticky;
+    top: 12px;
+    z-index: 30;
 }
 .categoria {
     display: none;
-    background: #fff;
+    margin-top: 4px;
+    background: #ffffff;
     padding: 4px;
     border-radius: 10px;
 }
+
 .item {
     background: #fff;
     padding: 8px;
@@ -43,22 +56,34 @@ h1 {
 }
 .item.zero {
     background: #ff4d4d !important;
-    color: white;
+    color: white !important;
 }
 .item.card {
     display: flex;
+    justify-content: space-between;
     gap: 10px;
 }
-.nome { font-weight: 800; }
-.valor { color: #007aff; font-weight: 700; }
+.info { flex: 1; }
+.nome { font-size: 17px; font-weight: 800; }
+.valor { font-size: 14px; font-weight: 700; color: #007aff; }
 .item.zero .valor { color: #fff; }
-.restante { font-weight: 800; }
+.restante { font-size: 16px; font-weight: 800; }
 
 .painel {
     background: #f1f1f1;
     padding: 8px;
     border-radius: 10px;
     min-width: 150px;
+}
+.linha {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 .controls span,
 .numero {
@@ -68,15 +93,33 @@ h1 {
 .btn {
     width: 28px;
     height: 28px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
     font-weight: 800;
 }
-#totalVendas {
+
+#totalVendas, .caixa-info {
     margin-top: 14px;
     padding: 14px;
     background: #e6fff0;
     border-radius: 12px;
-    font-weight: 800;
+    font-size: 18px;
     text-align: center;
+    font-weight: 800;
+    color: #0b6b1a;
+}
+
+#limpar {
+    width: 100%;
+    padding: 12px;
+    font-size: 17px;
+    border: none;
+    border-radius: 12px;
+    margin-top: 16px;
+    background: #ff3b30;
+    color: white;
 }
 </style>
 
@@ -91,68 +134,57 @@ let precoPorCategoria = {
 };
 
 let precosLancamentos = {
-    "Clássico":20,"Branco":20,"Avelã":20,"Amêndoas":20,
-    "Cookies & Cream":20,"Menos Açúcar":20,"Pistache":21,
-    "Choco Mix":13,"Chocante":13,"Uni Cornetto":16.5,
-    "M&Ms":16.5,"Brigadeiro Cornetto":16.5,
-    "Mini Eski-bon":17,"Mini Morango":17,"Mini Chicabon":17,
-    "Mini Doce de Leite":17,"Eski-bon":12,"Brigadeiro":12,
-    "Chicabon":12,"Chicabon Menos Açúcar":12,
-    "3 Chocolates":12.5,"Max Avelã":12.5,"Tablito":12.5,
-    "Expecto":10,"Grifinória":11,"Sonserina":11
+    "Clássico": 20,"Branco": 20,"Avelã": 20,"Amêndoas": 20,
+    "Cookies & Cream": 20,"Menos Açúcar": 20,"Pistache": 21,
+    "Choco Mix": 13,"Chocante": 13,"Uni Cornetto": 16.5,
+    "M&Ms": 16.5,"Brigadeiro Cornetto": 16.5,
+    "Mini Eski-bon": 17,"Mini Morango": 17,"Mini Chicabon": 17,
+    "Mini Doce de Leite": 17,"Eski-bon": 12,"Brigadeiro": 12,
+    "Chicabon": 12,"Chicabon Menos Açúcar": 12,
+    "3 Chocolates": 12.5,"Max Avelã": 12.5,"Tablito": 12.5,
+    "Expecto": 10,"Grifinória": 11,"Sonserina": 11
 };
 
 let categorias = {
-    "MAGNUM":["Clássico","Branco","Avelã","Amêndoas","Cookies & Cream","Menos Açúcar","Pistache"],
-    "CORNETTO":["Choco Mix","Chocante","Uni Cornetto","M&Ms","Brigadeiro Cornetto"],
-    "OS FAVORITOS":["Mini Eski-bon","Mini Morango","Mini Chicabon","Mini Doce de Leite","Eski-bon","Brigadeiro","Chicabon","Chicabon Menos Açúcar","3 Chocolates","Max Avelã","Tablito"],
-    "FRUTARE":["Tangerina","Limão","Morango","Abacaxi","Uva","Coco"],
-    "FRUTILLY":["Frutilly","Frutilly Pinta Língua"],
-    "HARRY POTTER":["Expecto","Grifinória","Sonserina"]
+    "MAGNUM": ["Clássico","Branco","Avelã","Amêndoas","Cookies & Cream","Menos Açúcar","Pistache"],
+    "CORNETTO": ["Choco Mix","Chocante","Uni Cornetto","M&Ms","Brigadeiro Cornetto"],
+    "OS FAVORITOS": ["Mini Eski-bon","Mini Morango","Mini Chicabon","Mini Doce de Leite","Eski-bon","Brigadeiro","Chicabon","Chicabon Menos Açúcar","3 Chocolates","Max Avelã","Tablito"],
+    "FRUTARE": ["Tangerina","Limão","Morango","Abacaxi","Uva","Coco"],
+    "FRUTILLY": ["Frutilly","Frutilly Pinta Língua"],
+    "HARRY POTTER": ["Expecto","Grifinória","Sonserina"]
 };
 
-let estoque = JSON.parse(localStorage.getItem("estoque")) || {};
-let vendido = JSON.parse(localStorage.getItem("vendido")) || {};
-let id = 1;
+let id=1, total=0;
 
-function toggle(c){
-    let el=document.getElementById("cat_"+c);
-    el.style.display = el.style.display==="block"?"none":"block";
+function toggle(cat){
+    let el=document.getElementById("cat_"+cat);
+    let open=el.style.display!=="block";
+    document.querySelectorAll(".categoria").forEach(c=>c.style.display="none");
+    if(open) el.style.display="block";
 }
 
-function salvar(){
-    localStorage.setItem("estoque",JSON.stringify(estoque));
-    localStorage.setItem("vendido",JSON.stringify(vendido));
-}
-
-function atualizar(i){
-    let r=Math.max(0,estoque[i]-vendido[i]);
-    document.getElementById("resto_"+i).innerText="Restante: "+r;
-    document.getElementById("item_"+i).classList.toggle("zero",r===0);
-    salvar();
+function atualizar(id){
+    let est=+document.getElementById("est_"+id).innerText;
+    let vend=+document.getElementById("vend_"+id).innerText;
+    let r=Math.max(0,est-vend);
+    document.getElementById("resto_"+id).innerText="Restante: "+r;
+    document.getElementById("item_"+id).classList.toggle("zero",r===0);
     recalcular();
 }
 
-function add(t,i){
-    if(t==="est") estoque[i]++;
-    else vendido[i]++;
-    document.getElementById(t+"_"+i).innerText = t==="est"?estoque[i]:vendido[i];
-    atualizar(i);
-}
-
+function add(t,i){document.getElementById(t+"_"+i).innerText++;atualizar(i);}
 function remove(t,i){
-    if(t==="est" && estoque[i]>0) estoque[i]--;
-    if(t==="vend" && vendido[i]>0) vendido[i]--;
-    document.getElementById(t+"_"+i).innerText = t==="est"?estoque[i]:vendido[i];
+    let e=document.getElementById(t+"_"+i);
+    if(+e.innerText>0)e.innerText--;
     atualizar(i);
 }
 
 function recalcular(){
-    let total=0,i=1;
+    let i=1; total=0;
     for(let c in categorias){
         categorias[c].forEach(s=>{
             let p=(c==="FRUTARE"||c==="FRUTILLY")?precoPorCategoria[c]:precosLancamentos[s];
-            total+=vendido[i]*p;
+            total+=+document.getElementById("vend_"+i).innerText*p;
             i++;
         });
     }
@@ -171,31 +203,32 @@ for(let c in categorias){
 document.write(`<button class="cat-btn" onclick="toggle('${c}')">${c}</button><div id="cat_${c}" class="categoria">`);
 categorias[c].forEach(s=>{
 let p=(c==="FRUTARE"||c==="FRUTILLY")?precoPorCategoria[c]:precosLancamentos[s];
-estoque[id]=estoque[id]||0;
-vendido[id]=vendido[id]||0;
 document.write(`
 <div class="item card" id="item_${id}">
-<div>
+<div class="info">
 <div class="nome">${s}</div>
 <div class="valor">Preço: R$ ${p.toFixed(2)}</div>
-<div class="restante" id="resto_${id}"></div>
+<div class="restante" id="resto_${id}">Restante: 0</div>
 </div>
 <div class="painel">
+<div class="linha">
 <div class="controls">
 <span>Estoque</span>
 <button class="btn" onclick="remove('est',${id})">-</button>
-<span class="numero" id="est_${id}">${estoque[id]}</span>
+<span class="numero" id="est_${id}">0</span>
 <button class="btn" onclick="add('est',${id})">+</button>
 </div>
+</div>
+<div class="linha">
 <div class="controls">
 <span>Vendido</span>
 <button class="btn" onclick="remove('vend',${id})">-</button>
-<span class="numero" id="vend_${id}">${vendido[id]}</span>
+<span class="numero" id="vend_${id}">0</span>
 <button class="btn" onclick="add('vend',${id})">+</button>
 </div>
 </div>
+</div>
 </div>`);
-setTimeout(()=>atualizar(${id}),0);
 id++;
 });
 document.write("</div>");
@@ -205,5 +238,7 @@ document.write("</div>");
 
 <div id="totalVendas">TOTAL EM VENDAS: R$ <span id="valorTotal">0.00</span></div>
 
+<button id="limpar" onclick="location.reload()">LIMPAR TUDO</button>
+
 </body>
-</html> 
+</html>
