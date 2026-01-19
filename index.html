@@ -10,7 +10,7 @@ body {
     font-family: Arial, sans-serif;
     background: #f2f2f7;
     padding: 12px;
-    color: #333;
+    color: #000;
     max-width: 480px;
     margin: auto;
 }
@@ -59,7 +59,7 @@ h1 {
 
 .item.zero {
     background: #ff4d4d !important;
-    color: white !important;
+    color: #fff !important;
 }
 
 .item.card {
@@ -113,8 +113,6 @@ h1 {
     font-weight: 800;
 }
 
-/* INPUTS */
-input[type="number"],
 input[type="tel"] {
     width: 80px;
     padding: 6px;
@@ -125,7 +123,6 @@ input[type="tel"] {
     text-align: center;
 }
 
-/* GELO SECO SEMPRE AZUL */
 #gelo {
     background: #e8f0ff;
     color: #003a8f;
@@ -183,10 +180,7 @@ input[type="tel"] {
 </style>
 
 <script>
-let precoPorCategoria = {
-    "FRUTARE": 10,
-    "FRUTILLY": 7.5
-};
+let precoPorCategoria = { FRUTARE:10, FRUTILLY:7.5 };
 
 let precosLancamentos = {
     "Clássico":20,"Branco":20,"Avelã":20,"Amêndoas":20,
@@ -211,6 +205,32 @@ let categorias = {
 
 let id=1, total=0;
 
+function salvarDados(){
+    let dados = {};
+    for(let i=1;i<id;i++){
+        dados[i]={
+            est: document.getElementById("est_"+i)?.value || "",
+            vend: document.getElementById("vend_"+i)?.innerText || "0"
+        };
+    }
+    dados.gelo = document.getElementById("gelo").value || "";
+    localStorage.setItem("controleSorvetes", JSON.stringify(dados));
+}
+
+function carregarDados(){
+    let dados = JSON.parse(localStorage.getItem("controleSorvetes"));
+    if(!dados) return;
+    for(let i=1;i<id;i++){
+        if(dados[i]){
+            document.getElementById("est_"+i).value = dados[i].est;
+            document.getElementById("vend_"+i).innerText = dados[i].vend;
+            atualizar(i);
+        }
+    }
+    document.getElementById("gelo").value = dados.gelo || "";
+    recalcular();
+}
+
 function toggle(cat){
     let btn = document.getElementById("btn_"+cat);
     let box = document.getElementById("cat_"+cat);
@@ -232,6 +252,7 @@ function atualizar(i){
 
     document.getElementById("resto_"+i).innerText = "Restante: " + r;
     document.getElementById("item_"+i).classList.toggle("zero", r === 0);
+    salvarDados();
     recalcular();
 }
 
@@ -241,7 +262,7 @@ function addVend(i){
 }
 
 function removeVend(i){
-    let v = document.getElementById("vend_"+i);
+    let v=document.getElementById("vend_"+i);
     if(+v.innerText>0) v.innerText--;
     atualizar(i);
 }
@@ -265,10 +286,12 @@ function recalcular(){
     document.getElementById("valorSorveteria").innerText = sorveteria.toFixed(2);
     document.getElementById("minhaParte").innerText = minhaParte.toFixed(2);
     document.getElementById("valorComissao").innerText = comissao.toFixed(2);
+    salvarDados();
 }
 
 function confirmarLimpeza(){
     if(confirm("Tem certeza que deseja limpar todo o controle?")){
+        localStorage.clear();
         location.reload();
     }
 }
@@ -297,8 +320,7 @@ document.write(`
 <div class="linha">
 <div class="controls">
 <span>Estoque</span>
-<input type="tel" inputmode="numeric" pattern="[0-9]*"
-id="est_${id}" value="" oninput="atualizar(${id})">
+<input type="tel" id="est_${id}" oninput="atualizar(${id})">
 </div>
 </div>
 
@@ -322,8 +344,7 @@ document.write("</div>");
 <div class="resumo">
 <div>
 <span>Gelo Seco (R$)</span>
-<input type="tel" inputmode="numeric" pattern="[0-9]*"
-id="gelo" value="" oninput="recalcular()">
+<input type="tel" id="gelo" oninput="recalcular()">
 </div>
 
 <div id="totalVendas">
@@ -342,12 +363,14 @@ id="gelo" value="" oninput="recalcular()">
 </div>
 
 <div id="comissaoBox">
-<span>Comissão Final (com gelo seco descontado)</span>
+<span>Comissão Final</span>
 <span>R$ <span id="valorComissao">0.00</span></span>
 </div>
 </div>
 
 <button id="limpar" onclick="confirmarLimpeza()">LIMPAR TUDO</button>
+
+<script>carregarDados();</script>
 
 </body>
 </html>
