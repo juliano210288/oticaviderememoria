@@ -22,7 +22,6 @@ h1 {
     font-weight: 900;
 }
 
-/* BOTÃO CATEGORIA */
 .cat-btn {
     width: 100%;
     background: #007aff;
@@ -51,7 +50,6 @@ h1 {
     border-radius: 12px;
 }
 
-/* ITEM */
 .item {
     background: #fff;
     padding: 8px;
@@ -83,16 +81,13 @@ h1 {
     color: #007aff;
 }
 
-.item.zero .valor {
-    color: #fff;
-}
+.item.zero .valor { color: #fff; }
 
 .restante {
     font-size: 16px;
     font-weight: 800;
 }
 
-/* PAINEL */
 .painel {
     background: #f1f1f1;
     padding: 8px;
@@ -112,16 +107,14 @@ h1 {
     gap: 6px;
 }
 
-/* FORÇA TEXTO PRETO */
 .controls span,
 .numero {
     color: #000 !important;
     font-weight: 800;
 }
 
-/* INPUT NUMÉRICO */
 input[type="number"] {
-    width: 60px;
+    width: 80px;
     padding: 6px;
     border-radius: 6px;
     border: none;
@@ -140,15 +133,31 @@ input[type="number"] {
     font-weight: 800;
 }
 
-#totalVendas {
+.resumo {
     margin-top: 14px;
     padding: 14px;
-    background: #e6fff0;
+    background: #ffffff;
     border-radius: 12px;
-    font-size: 18px;
-    text-align: center;
+    font-size: 16px;
     font-weight: 800;
+}
+
+.resumo div {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+
+#totalVendas {
+    margin-top: 10px;
+    font-size: 18px;
     color: #0b6b1a;
+}
+
+#comissaoFinal {
+    margin-top: 10px;
+    font-size: 20px;
+    color: #007aff;
 }
 
 #limpar {
@@ -170,15 +179,15 @@ let precoPorCategoria = {
 };
 
 let precosLancamentos = {
-    "Clássico": 20,"Branco": 20,"Avelã": 20,"Amêndoas": 20,
-    "Cookies & Cream": 20,"Menos Açúcar": 20,"Pistache": 21,
-    "Choco Mix": 13,"Chocante": 13,"Uni Cornetto": 16.5,
-    "M&Ms": 16.5,"Brigadeiro Cornetto": 16.5,
-    "Mini Eski-bon": 17,"Mini Morango": 17,"Mini Chicabon": 17,
-    "Mini Doce de Leite": 17,"Eski-bon": 12,"Brigadeiro": 12,
-    "Chicabon": 12,"Chicabon Menos Açúcar": 12,
-    "3 Chocolates": 12.5,"Max Avelã": 12.5,"Tablito": 12.5,
-    "Expecto": 10,"Grifinória": 11,"Sonserina": 11
+    "Clássico":20,"Branco":20,"Avelã":20,"Amêndoas":20,
+    "Cookies & Cream":20,"Menos Açúcar":20,"Pistache":21,
+    "Choco Mix":13,"Chocante":13,"Uni Cornetto":16.5,
+    "M&Ms":16.5,"Brigadeiro Cornetto":16.5,
+    "Mini Eski-bon":17,"Mini Morango":17,"Mini Chicabon":17,
+    "Mini Doce de Leite":17,"Eski-bon":12,"Brigadeiro":12,
+    "Chicabon":12,"Chicabon Menos Açúcar":12,
+    "3 Chocolates":12.5,"Max Avelã":12.5,"Tablito":12.5,
+    "Expecto":10,"Grifinória":11,"Sonserina":11
 };
 
 let categorias = {
@@ -236,12 +245,20 @@ function recalcular(){
             i++;
         });
     }
+
+    let gelo = +document.getElementById("gelo").value || 0;
+    let minhaParte = total * 0.25;
+    let comissao = Math.max(0, minhaParte - gelo);
+    let sorveteria = total * 0.75;
+
     document.getElementById("valorTotal").innerText = total.toFixed(2);
+    document.getElementById("valorSorveteria").innerText = sorveteria.toFixed(2);
+    document.getElementById("minhaParte").innerText = minhaParte.toFixed(2);
+    document.getElementById("comissaoFinal").innerText = comissao.toFixed(2);
 }
 
-/* CONFIRMAÇÃO DE LIMPAR */
 function confirmarLimpeza(){
-    if(confirm("Tem certeza que deseja limpar todo o controle de sorvetes?")){
+    if(confirm("Tem certeza que deseja limpar todo o controle?")){
         location.reload();
     }
 }
@@ -270,8 +287,7 @@ document.write(`
 <div class="linha">
 <div class="controls">
 <span>Estoque</span>
-<input type="number" inputmode="numeric" pattern="[0-9]*"
-id="est_${id}" min="0" value="" oninput="atualizar(${id})">
+<input type="number" id="est_${id}" value="" oninput="atualizar(${id})">
 </div>
 </div>
 
@@ -292,7 +308,32 @@ document.write("</div>");
 </script>
 </div>
 
-<div id="totalVendas">TOTAL EM VENDAS: R$ <span id="valorTotal">0.00</span></div>
+<div class="resumo">
+<div>
+<span>Gelo Seco (R$)</span>
+<input type="number" id="gelo" value="" oninput="recalcular()">
+</div>
+
+<div id="totalVendas">
+<span>Total de Vendas</span>
+<span>R$ <span id="valorTotal">0.00</span></span>
+</div>
+
+<div>
+<span>Pagamento Sorveteria (75%)</span>
+<span>R$ <span id="valorSorveteria">0.00</span></span>
+</div>
+
+<div>
+<span>Sua Parte (25%)</span>
+<span>R$ <span id="minhaParte">0.00</span></span>
+</div>
+
+<div id="comissaoFinal">
+<span>Sua Comissão Final</span>
+<span>R$ <span id="comissaoFinal">0.00</span></span>
+</div>
+</div>
 
 <button id="limpar" onclick="confirmarLimpeza()">LIMPAR TUDO</button>
 
